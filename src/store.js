@@ -38,6 +38,10 @@ const store = new Vuex.Store({
     async deleteTask ({ commit, dispatch }, uuid) {
       commit('deleteTask', uuid)
       await dispatch('saveTasks')
+    },
+    async reorderTask ({ commit, dispatch }, { from, to }) {
+      commit('reorderTask', { from, to })
+      await dispatch('saveTasks')
     }
   },
   mutations: {
@@ -61,6 +65,11 @@ const store = new Vuex.Store({
       if (state.openedTask === uuid) state.openedTask = undefined
       const index = state.tasks.findIndex(task => task.uuid === uuid)
       if (index >= 0) state.tasks.splice(index, 1)
+    },
+    reorderTask (state, { from, to }) {
+      const task = state.tasks.splice(from, 1)[0]
+      task.moved = Date.now()
+      state.tasks.splice(to, 0, task)
     },
     openTask (state, uuid) {
       state.openedTask = uuid || uuidv4()
