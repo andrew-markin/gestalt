@@ -2,7 +2,7 @@
   <drop-list
     v-if="tasks.length > 0"
     :items="tasks" column
-    class="pt-0" :class="{ 'pl-8': !!parent }"
+    class="pt-0" :class="{ 'pl-8': !!parent }" no-animations
     @insert="$emit('move', $event.data, parent, $event.index)"
     @reorder="$emit('reorder', parent, $event.from, $event.to)">
     <template #item="{ item: task }">
@@ -12,7 +12,6 @@
         :drag-image-opacity="0.9">
         <template #default>
           <v-sheet
-            :key="task.uuid"
             class="task rounded pa-4 my-3 d-flex align-center noselect"
             @click="$emit('open', task.uuid)">
             <drop
