@@ -63,7 +63,7 @@ export default {
   }),
   computed: {
     ...mapState(['openedTask']),
-    ...mapGetters(['taskByUuid']),
+    ...mapGetters(['getTask']),
     visible: {
       get () {
         return !!this.openedTask
@@ -73,7 +73,7 @@ export default {
       }
     },
     task () {
-      return this.taskByUuid(this.openedTask)
+      return this.getTask(this.openedTask)
     }
   },
   watch: {
