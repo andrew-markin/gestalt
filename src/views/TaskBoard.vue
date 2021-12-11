@@ -1,6 +1,7 @@
 <template>
   <v-container class="pt-0">
     <task-tree
+      class="noselect"
       :tasks="tasks"
       @open="open"
       @move="move"
