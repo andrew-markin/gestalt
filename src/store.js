@@ -50,6 +50,7 @@ const store = new Vuex.Store({
   state: {
     tasks: [],
     expandedTasks: [],
+    selectedTask: undefined,
     openedTask: undefined
   },
   getters: {
@@ -58,6 +59,9 @@ const store = new Vuex.Store({
     },
     expandedTasks (state) {
       return state.expandedTasks
+    },
+    selectedTask (state) {
+      return state.selectedTask
     },
     getTask: (state) => (uuid) => {
       if (!uuid) return undefined
@@ -156,6 +160,10 @@ const store = new Vuex.Store({
     },
     expandTask (state, uuid, value) {
       toggleSetValue(state.expandedTasks, uuid, value)
+    },
+    selectTask (state, uuid) {
+      if (uuid && !findTasks(state.tasks, uuid)) return
+      state.selectedTask = uuid
     },
     openTask (state, uuid) {
       if (uuid && !findTasks(state.tasks, uuid)) return

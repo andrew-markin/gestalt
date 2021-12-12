@@ -1,13 +1,16 @@
 <template>
   <v-container class="pt-0">
+    <div id="outside" @click="select()"/>
     <task-tree
       class="noselect"
       :tasks="tasks"
       :expanded-tasks="expandedTasks"
+      :selected-task="selectedTask"
       @open="open"
       @move="move"
       @reorder="reorder"
-      @expand="expand">
+      @expand="expand"
+      @select="select">
     </task-tree>
   </v-container>
 </template>
@@ -18,11 +21,12 @@ import { mapState, mapActions, mapMutations } from 'vuex'
 
 export default {
   components: { TaskTree },
-  computed: mapState(['tasks', 'expandedTasks']),
+  computed: mapState(['tasks', 'expandedTasks', 'selectedTask']),
   methods: {
     ...mapActions(['moveTask', 'reorderTask', 'expandTask']),
-    ...mapMutations(['openTask']),
+    ...mapMutations(['selectTask', 'openTask']),
     open (uuid) {
+      this.selectTask(uuid)
       this.openTask(uuid)
     },
     move (uuid, target, index) {
@@ -32,8 +36,22 @@ export default {
       this.reorderTask({ parent, from, to })
     },
     expand (uuid) {
+      this.selectTask(uuid)
       this.expandTask(uuid)
+    },
+    select (uuid) {
+      this.selectTask(uuid)
     }
   }
 }
 </script>
+
+<style scoped>
+#outside {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+</style>

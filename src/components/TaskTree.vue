@@ -7,7 +7,8 @@
       <drag
         :key="task.uuid"
         :data="task.uuid"
-        :drag-image-opacity="0.9">
+        :drag-image-opacity="0.9"
+        @dragstart="$emit('select', task.uuid)">
         <template #default>
           <div class="my-3 d-flex">
             <div
@@ -21,12 +22,14 @@
             </div>
             <div class="flex-grow-1 overflow-hidden">
               <v-sheet
-                class="task rounded pr-3 d-flex"
-                :class="{ 'pl-3': !taskIsExpandable(task) }"
-                @click="$emit('open', task.uuid)">
+                tabindex="0"
+                class="task rounded px-3 d-flex"
+                :class="{ selected: task.uuid === selectedTask }"
+                @focus="$emit('select', task.uuid)"
+                @dblclick="$emit('open', task.uuid)">
                 <div
-                  v-if="taskIsExpandable(task)"
-                  class="expander d-flex justify-center"
+                  v-if="task.children.length > 0"
+                  class="expander ml-n3 d-flex justify-center"
                   @click.prevent.stop="$emit('expand', task.uuid)">
                   <v-icon>
                     {{ taskIsExpanded(task.uuid) ? 'expand_less' : 'expand_more' }}
@@ -44,19 +47,18 @@
               </v-sheet>
               <task-tree
                 v-if="taskIsExpanded(task.uuid)"
+                ref="children"
                 :parent="task.uuid"
                 :tasks="task.children"
                 :expanded-tasks="expandedTasks"
-                @open="forwardOpen"
-                @move="forwardMove"
-                @reorder="forwardReorder"
-                @expand="forwardExpand">
+                :selected-task="selectedTask"
+                v-on="$listeners">
               </task-tree>
             </div>
           </div>
         </template>
         <template #drag-image>
-          <v-sheet dark class="dragged rounded indigo pa-2 d-flex align-center noselect">
+          <v-sheet dark class="dragged rounded pa-2 d-flex align-center noselect">
             <span class="text-body-1 text-truncate">
               {{ task.data.description }}
             </span>
@@ -90,24 +92,10 @@ export default {
   props: {
     parent: { type: String },
     tasks: { type: Array, default: () => [] },
-    expandedTasks: { type: Array, default: () => [] }
+    expandedTasks: { type: Array, default: () => [] },
+    selectedTask: { type: String }
   },
   methods: {
-    forwardOpen () {
-      this.$emit('open', ...arguments)
-    },
-    forwardMove () {
-      this.$emit('move', ...arguments)
-    },
-    forwardReorder () {
-      this.$emit('reorder', ...arguments)
-    },
-    forwardExpand () {
-      this.$emit('expand', ...arguments)
-    },
-    taskIsExpandable (task) {
-      return task.children && task.children.length > 0
-    },
     taskIsExpanded (uuid) {
       return this.expandedTasks.findIndex((item) => item === uuid) >= 0
     }
@@ -118,7 +106,7 @@ export default {
 <style scoped>
 * {
   --pipe-border: 2px solid #757575;
-  --feedback-border: 2px dashed #3F51B5;
+  --feedback-border: 2px dashed #1B78CC;
 }
 .trunk {
   width: 1rem;
@@ -149,13 +137,17 @@ export default {
   bottom: 0;
   margin: 15px;
 }
+.task:focus {
+  outline: none;
+}
 .expander {
   width: 2rem;
   padding-left: 3px;
-  z-index: 100;
+  z-index: 1;
 }
 .dragged {
   max-width: 20rem;
+  background-color: #1B78CC;
   transform: translate(-4rem, -50%);
 }
 .drop-in::before {
@@ -184,5 +176,12 @@ export default {
   bottom: 0;
   margin-top: -7px;
   border-top: var(--feedback-border);
+}
+.selected {
+  background-color: #1B78CC;
+  color: white;
+}
+.selected > * > .v-icon {
+  color: white;
 }
 </style>
