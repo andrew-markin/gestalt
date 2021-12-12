@@ -32,7 +32,7 @@
                   class="expander ml-n3 d-flex justify-center"
                   @click.prevent.stop="$emit('expand', task.uuid)">
                   <v-icon>
-                    {{ taskIsExpanded(task.uuid) ? 'expand_less' : 'expand_more' }}
+                    {{ task.expanded ? 'expand_less' : 'expand_more' }}
                   </v-icon>
                 </div>
                 <div class="d-flex align-center overflow-hidden">
@@ -46,11 +46,9 @@
                 </drop>
               </v-sheet>
               <task-tree
-                v-if="taskIsExpanded(task.uuid)"
-                ref="children"
+                v-if="(task.children.length > 0) && task.expanded"
                 :parent="task.uuid"
                 :tasks="task.children"
-                :expanded-tasks="expandedTasks"
                 :selected-task="selectedTask"
                 v-on="$listeners">
               </task-tree>
@@ -92,13 +90,7 @@ export default {
   props: {
     parent: { type: String },
     tasks: { type: Array, default: () => [] },
-    expandedTasks: { type: Array, default: () => [] },
     selectedTask: { type: String }
-  },
-  methods: {
-    taskIsExpanded (uuid) {
-      return this.expandedTasks.findIndex((item) => item === uuid) >= 0
-    }
   }
 }
 </script>
