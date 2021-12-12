@@ -3,9 +3,11 @@
     <task-tree
       class="noselect"
       :tasks="tasks"
+      :expanded-tasks="expandedTasks"
       @open="open"
       @move="move"
-      @reorder="reorder">
+      @reorder="reorder"
+      @expand="expand">
     </task-tree>
   </v-container>
 </template>
@@ -16,9 +18,9 @@ import { mapState, mapActions, mapMutations } from 'vuex'
 
 export default {
   components: { TaskTree },
-  computed: mapState(['tasks']),
+  computed: mapState(['tasks', 'expandedTasks']),
   methods: {
-    ...mapActions(['moveTask', 'reorderTask']),
+    ...mapActions(['moveTask', 'reorderTask', 'expandTask']),
     ...mapMutations(['openTask']),
     open (uuid) {
       this.openTask(uuid)
@@ -28,6 +30,9 @@ export default {
     },
     reorder (parent, from, to) {
       this.reorderTask({ parent, from, to })
+    },
+    expand (uuid) {
+      this.expandTask(uuid)
     }
   }
 }

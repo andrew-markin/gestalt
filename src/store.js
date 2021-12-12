@@ -4,16 +4,16 @@ import { v4 as uuidv4 } from 'uuid'
 
 Vue.use(Vuex)
 
-const expandTasks = (tasks) => {
+const importTasks = (tasks) => {
   return tasks.map(({ children, ...rest }) => ({
-    children: expandTasks(children || []),
+    children: importTasks(children || []),
     ...rest
   }))
 }
 
-const squashTasks = (tasks) => {
+const exportTasks = (tasks) => {
   return tasks.map(({ children, ...rest }) => ({
-    ...(children.length > 0) && { children: squashTasks(children) },
+    ...(children.length > 0) && { children: exportTasks(children) },
     ...rest
   }))
 }
@@ -39,14 +39,25 @@ const findTasks = (root, uuid) => {
   if (task) return task.children || []
 }
 
+const toggleSetValue = (set, value, target) => {
+  if (!value) return
+  const index = set.findIndex((item) => item === value)
+  if ((index >= 0) && (target !== true)) set.splice(index, 1)
+  if ((index < 0) && (target !== false)) set.push(value)
+}
+
 const store = new Vuex.Store({
   state: {
     tasks: [],
+    expandedTasks: [],
     openedTask: undefined
   },
   getters: {
     tasks (state) {
       return state.tasks
+    },
+    expandedTasks (state) {
+      return state.expandedTasks
     },
     getTask: (state) => (uuid) => {
       if (!uuid) return undefined
@@ -57,15 +68,25 @@ const store = new Vuex.Store({
   actions: {
     init ({ dispatch }) {
       dispatch('loadTasks')
+      dispatch('loadExpandedTasks')
     },
     loadTasks ({ commit }) {
       const json = localStorage.getItem('tasks')
-      const tasks = expandTasks(JSON.parse(json) || [])
+      const tasks = importTasks(JSON.parse(json) || [])
       commit('updateTasks', tasks)
     },
     saveTasks ({ state }) {
-      const json = JSON.stringify(squashTasks(state.tasks))
+      const json = JSON.stringify(exportTasks(state.tasks))
       localStorage.setItem('tasks', json)
+    },
+    loadExpandedTasks ({ commit }) {
+      const json = localStorage.getItem('expandedTasks')
+      const expandedTasks = JSON.parse(json) || []
+      commit('updateExpandedTasks', expandedTasks)
+    },
+    saveExpandedTasks ({ state }) {
+      const json = JSON.stringify(state.expandedTasks)
+      localStorage.setItem('expandedTasks', json)
     },
     async upsertTask ({ commit, dispatch }, { uuid, data }) {
       commit('upsertTask', { uuid, data })
@@ -82,11 +103,19 @@ const store = new Vuex.Store({
     async deleteTask ({ commit, dispatch }, uuid) {
       commit('deleteTask', uuid)
       await dispatch('saveTasks')
+    },
+    async expandTask ({ commit, dispatch }, uuid) {
+      if (!uuid) return
+      commit('expandTask', uuid)
+      await dispatch('saveExpandedTasks')
     }
   },
   mutations: {
     updateTasks (state, value) {
       state.tasks = value
+    },
+    updateExpandedTasks (state, value) {
+      state.expandedTasks = value
     },
     upsertTask (state, { uuid, data }) {
       const now = Date.now()
@@ -110,6 +139,7 @@ const store = new Vuex.Store({
       if (index === undefined) targetTasks.push(task)
       else targetTasks.splice(index, 0, task)
       task.moved = Date.now()
+      toggleSetValue(state.expandedTasks, target, true)
     },
     reorderTask (state, { parent, from, to }) {
       const tasks = findTasks(state.tasks, parent)
@@ -123,6 +153,9 @@ const store = new Vuex.Store({
       if (state.openedTask === uuid) state.openedTask = undefined
       const match = findTask(state.tasks, uuid)
       if (match) match.tasks.splice(match.index, 1)
+    },
+    expandTask (state, uuid, value) {
+      toggleSetValue(state.expandedTasks, uuid, value)
     },
     openTask (state, uuid) {
       if (uuid && !findTasks(state.tasks, uuid)) return

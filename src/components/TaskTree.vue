@@ -21,22 +21,36 @@
             </div>
             <div class="flex-grow-1 overflow-hidden">
               <v-sheet
-                class="task rounded px-3 d-flex align-center"
+                class="task rounded pr-3 d-flex"
+                :class="{ 'pl-3': !taskIsExpandable(task) }"
                 @click="$emit('open', task.uuid)">
-                <span class="text-body-1 text-truncate">
-                  {{ task.data.description }}
-                </span>
+                <div
+                  v-if="taskIsExpandable(task)"
+                  class="expander d-flex justify-center"
+                  @click.prevent.stop="$emit('expand', task.uuid)">
+                  <v-icon>
+                    {{ taskIsExpanded(task.uuid) ? 'expand_less' : 'expand_more' }}
+                  </v-icon>
+                </div>
+                <div class="d-flex align-center overflow-hidden">
+                  <span class="text-body-1 text-truncate">
+                    {{ task.data.description }}
+                  </span>
+                </div>
                 <drop
                   class="drop-area"
                   @drop="$emit('move', $event.data, task.uuid)">
                 </drop>
               </v-sheet>
               <task-tree
+                v-if="taskIsExpanded(task.uuid)"
                 :parent="task.uuid"
                 :tasks="task.children"
+                :expanded-tasks="expandedTasks"
                 @open="forwardOpen"
                 @move="forwardMove"
-                @reorder="forwardReorder">
+                @reorder="forwardReorder"
+                @expand="forwardExpand">
               </task-tree>
             </div>
           </div>
@@ -74,8 +88,9 @@ export default {
   name: 'task-tree',
   components: { Drag, Drop, DropList },
   props: {
+    parent: { type: String },
     tasks: { type: Array, default: () => [] },
-    parent: { type: String }
+    expandedTasks: { type: Array, default: () => [] }
   },
   methods: {
     forwardOpen () {
@@ -86,6 +101,15 @@ export default {
     },
     forwardReorder () {
       this.$emit('reorder', ...arguments)
+    },
+    forwardExpand () {
+      this.$emit('expand', ...arguments)
+    },
+    taskIsExpandable (task) {
+      return task.children && task.children.length > 0
+    },
+    taskIsExpanded (uuid) {
+      return this.expandedTasks.findIndex((item) => item === uuid) >= 0
     }
   }
 }
@@ -101,7 +125,6 @@ export default {
   margin-left: 1rem;
 }
 .trunk.piped {
-  border-left: 2px solid;
   border-left: var(--pipe-border);
 }
 .bridge {
@@ -125,6 +148,11 @@ export default {
   right: 0;
   bottom: 0;
   margin: 15px;
+}
+.expander {
+  width: 2rem;
+  padding-left: 3px;
+  z-index: 100;
 }
 .dragged {
   max-width: 20rem;
