@@ -1,5 +1,6 @@
 <template>
   <drop-list
+    :class="{ 'mt-3': !parent }"
     :items="tasks" column no-animations
     @insert="$emit('move', $event.data, parent, $event.index)"
     @reorder="$emit('reorder', parent, $event.from, $event.to)">
@@ -10,7 +11,7 @@
         :drag-image-opacity="0.9"
         @dragstart="$emit('select', task.uuid)">
         <template #default>
-          <div class="my-3 d-flex">
+          <div class="d-flex">
             <div
               v-if="!!parent"
               class="trunk mt-n3"
@@ -23,7 +24,7 @@
             <div class="flex-grow-1 overflow-hidden">
               <v-sheet
                 tabindex="0"
-                class="task rounded px-3 d-flex"
+                class="task rounded mb-3 px-3 d-flex"
                 :class="{ selected: task.uuid === selectedTask }"
                 @focus="$emit('select', task.uuid)"
                 @dblclick="$emit('open', task.uuid)">
@@ -127,10 +128,13 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  margin: 15px;
+  margin: 20px;
 }
 .task:focus {
   outline: none;
+}
+.task > * > .v-icon {
+  transition: none !important;
 }
 .expander {
   width: 2rem;
@@ -142,14 +146,14 @@ export default {
   background-color: #1B78CC;
   transform: translate(-4rem, -50%);
 }
-.drop-in::before {
+.drop-area.drop-in::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  margin: -15px;
+  margin: -20px;
   border: var(--feedback-border);
   border-radius: 4px;
 }

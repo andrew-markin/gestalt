@@ -5,7 +5,7 @@
       color="white"
       elevation="2"
       elevate-on-scroll>
-      <v-container class="py-0 fill-height">
+      <v-container class="py-0 fill-height noselect">
         <v-avatar
           class="mr-3"
           size="32">
