@@ -24,9 +24,8 @@
       <div class="d-flex">
         <v-btn
           v-if="task"
-          depressed
-          dark color="deep-orange"
-          @click="deleteTask(openedTask)">
+          depressed dark color="deep-orange"
+          @click="deleteTask(task.uuid)">
           Delete
         </v-btn>
         <v-spacer></v-spacer>
@@ -38,9 +37,8 @@
         </v-btn>
         <v-btn
           ref="saveButton"
-          depressed
-          color="primary"
-          :disabled="!valid"
+          depressed color="primary"
+          :disabled="!demandedTask || !valid"
           @click="save">
           Save
         </v-btn>
@@ -62,24 +60,26 @@ export default {
     valid: true
   }),
   computed: {
-    ...mapState(['openedTask']),
+    ...mapState(['demandedTask']),
     ...mapGetters(['getTask']),
     visible: {
       get () {
-        return !!this.openedTask
+        return !!this.demandedTask
       },
       set (value) {
-        if (!value) this.closeTask()
+        if (!value) this.demandTask()
       }
     },
     task () {
-      return this.getTask(this.openedTask)
+      const { uuid } = this.demandedTask || {}
+      return this.getTask(uuid)
     }
   },
   watch: {
-    openedTask () {
+    demandedTask () {
       if (this.task) {
-        this.description = this.task.data.description
+        const { description } = this.task.data
+        this.description = description || ''
       } else {
         this.description = ''
       }
@@ -88,23 +88,25 @@ export default {
   },
   methods: {
     ...mapActions(['upsertTask', 'deleteTask']),
-    ...mapMutations(['closeTask']),
+    ...mapMutations(['demandTask']),
     moveCursorToEnd (event) {
       const element = event.target
       const position = element.value.length
       element.setSelectionRange(position, position)
     },
     async save () {
-      if (!this.$refs.form.validate()) return
+      if (!this.demandedTask || !this.$refs.form.validate()) return
       if (!this.task || (this.description !== this.task.data.description)) {
+        const { uuid, subtask } = this.demandedTask
         await this.upsertTask({
-          uuid: this.openedTask,
+          uuid,
+          subtask,
           data: {
             description: this.description.trim()
           }
         })
       }
-      this.closeTask()
+      this.demandTask()
     }
   }
 }

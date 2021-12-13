@@ -5,7 +5,8 @@ import { v4 as uuidv4 } from 'uuid'
 Vue.use(Vuex)
 
 const importTasks = (tasks) => {
-  return tasks.map(({ children, expanded, ...rest }) => ({
+  return tasks.map(({ uuid, children, expanded, ...rest }) => ({
+    uuid: uuid || uuidv4(),
     children: importTasks(children || []),
     expanded: expanded || false,
     ...rest
@@ -44,20 +45,10 @@ const findTasks = (root, uuid) => {
 const store = new Vuex.Store({
   state: {
     tasks: [],
-    expandedTasks: [],
     selectedTask: undefined,
-    openedTask: undefined
+    demandedTask: undefined
   },
   getters: {
-    tasks (state) {
-      return state.tasks
-    },
-    expandedTasks (state) {
-      return state.expandedTasks
-    },
-    selectedTask (state) {
-      return state.selectedTask
-    },
     getTask: (state) => (uuid) => {
       if (!uuid) return undefined
       const { task } = findTask(state.tasks, uuid) || {}
@@ -77,8 +68,8 @@ const store = new Vuex.Store({
       const json = JSON.stringify(exportTasks(state.tasks))
       localStorage.setItem('tasks', json)
     },
-    async upsertTask ({ commit, dispatch }, { uuid, data }) {
-      commit('upsertTask', { uuid, data })
+    async upsertTask ({ commit, dispatch }, { uuid, subtask, data }) {
+      commit('upsertTask', { uuid, subtask, data })
       await dispatch('saveTasks')
     },
     async moveTask ({ commit, dispatch }, { uuid, target, index }) {
@@ -103,20 +94,42 @@ const store = new Vuex.Store({
     updateTasks (state, value) {
       state.tasks = value
     },
-    updateExpandedTasks (state, value) {
-      state.expandedTasks = value
-    },
-    upsertTask (state, { uuid, data }) {
+    upsertTask (state, { uuid, subtask, data }) {
       const now = Date.now()
-      const { task } = findTask(state.tasks, uuid) || {}
-      if (task) {
+      if (uuid) {
+        // Update existing task
+        const { task } = findTask(state.tasks, uuid) || {}
+        if (!task) return
         task.data = data
         task.changed = now
-      } else {
-        const changed = now
-        const moved = now
-        state.tasks.push({ uuid, data, changed, moved, children: [] })
+        return
       }
+      // Create new task
+      const newTask = {
+        data,
+        uuid: uuidv4(),
+        changed: now,
+        moved: now,
+        children: []
+      }
+      if (!state.selectedTask) {
+        // Append to the root list
+        state.tasks.push(newTask)
+        state.selectedTask = newTask.uuid
+        return
+      }
+      // Insert at the selected task location
+      const { task, tasks, index } = findTask(state.tasks, state.selectedTask) || {}
+      if (!task) return
+      if (subtask) {
+        // To the selected task children
+        task.children.push(newTask)
+        task.expanded = true
+      } else {
+        // Or next to the selected task
+        tasks.splice(index + 1, 0, newTask)
+      }
+      state.selectedTask = newTask.uuid
     },
     moveTask (state, { uuid, target, index }) {
       if (uuid === target) return
@@ -143,7 +156,7 @@ const store = new Vuex.Store({
     },
     deleteTask (state, uuid) {
       if (!uuid) return
-      if (state.openedTask === uuid) state.openedTask = undefined
+      if (state?.demandedTask?.uuid === uuid) state.demandedTask = undefined
       const match = findTask(state.tasks, uuid)
       if (match) match.tasks.splice(match.index, 1)
     },
@@ -155,12 +168,8 @@ const store = new Vuex.Store({
       if (uuid && !findTask(state.tasks, uuid)) return
       state.selectedTask = uuid
     },
-    openTask (state, uuid) {
-      if (uuid && !findTask(state.tasks, uuid)) return
-      state.openedTask = uuid || uuidv4()
-    },
-    closeTask (state) {
-      state.openedTask = undefined
+    demandTask (state, value) {
+      state.demandedTask = value
     }
   }
 })

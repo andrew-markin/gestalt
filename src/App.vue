@@ -22,8 +22,16 @@
         <v-spacer></v-spacer>
         <v-btn
           depressed
-          @click="openTask()">
-          New Task
+          @click="demandTask({})">
+          <v-icon left>add</v-icon>
+          Task
+        </v-btn>
+        <v-btn
+          depressed class="ml-2"
+          @click="demandTask({ subtask: true })"
+          :disabled="!selectedTask">
+          <v-icon left>add</v-icon>
+          Subtask
         </v-btn>
       </v-container>
     </v-app-bar>
@@ -36,13 +44,14 @@
 
 <script>
 import TaskDialog from './components/TaskDialog.vue'
-import { mapMutations } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   components: {
     TaskDialog
   },
-  methods: mapMutations(['openTask'])
+  computed: mapState(['selectedTask']),
+  methods: mapMutations(['demandTask'])
 }
 </script>
 
@@ -54,6 +63,9 @@ export default {
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+.v-icon {
+  transition: none !important;
 }
 </style>
 

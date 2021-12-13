@@ -4,7 +4,6 @@
     <task-tree
       class="noselect"
       :tasks="tasks"
-      :expanded-tasks="expandedTasks"
       :selected-task="selectedTask"
       @open="open"
       @move="move"
@@ -21,13 +20,13 @@ import { mapState, mapActions, mapMutations } from 'vuex'
 
 export default {
   components: { TaskTree },
-  computed: mapState(['tasks', 'expandedTasks', 'selectedTask']),
+  computed: mapState(['tasks', 'selectedTask']),
   methods: {
     ...mapActions(['moveTask', 'reorderTask', 'expandTask']),
-    ...mapMutations(['selectTask', 'openTask']),
+    ...mapMutations(['selectTask', 'demandTask']),
     open (uuid) {
       this.selectTask(uuid)
-      this.openTask(uuid)
+      this.demandTask({ uuid })
     },
     move (uuid, target, index) {
       this.moveTask({ uuid, target, index })

@@ -133,9 +133,6 @@ export default {
 .task:focus {
   outline: none;
 }
-.task > * > .v-icon {
-  transition: none !important;
-}
 .expander {
   width: 2rem;
   padding-left: 3px;
