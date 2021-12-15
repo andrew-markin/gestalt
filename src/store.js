@@ -5,17 +5,17 @@ import { v4 as uuidv4 } from 'uuid'
 Vue.use(Vuex)
 
 const importTasks = (tasks) => {
-  return tasks.map(({ uuid, children, expanded, ...rest }) => ({
+  return tasks.map(({ uuid, subtasks, expanded, ...rest }) => ({
     uuid: uuid || uuidv4(),
-    children: importTasks(children || []),
+    subtasks: importTasks(subtasks || []),
     expanded: expanded || false,
     ...rest
   }))
 }
 
 const exportTasks = (tasks) => {
-  return tasks.map(({ children, expanded, ...rest }) => ({
-    ...(children.length > 0) && { children: exportTasks(children) },
+  return tasks.map(({ subtasks, expanded, ...rest }) => ({
+    ...(subtasks.length > 0) && { subtasks: exportTasks(subtasks) },
     ...(expanded) && { expanded },
     ...rest
   }))
@@ -29,8 +29,8 @@ const findTask = (root, uuid) => {
     for (let index = 0; index < tasks.length; index++) {
       const task = tasks[index]
       if (task.uuid === uuid) return { task, tasks, index }
-      if (task.children && (task.children.length > 0)) {
-        scope.push(task.children)
+      if (task.subtasks && (task.subtasks.length > 0)) {
+        scope.push(task.subtasks)
       }
     }
   }
@@ -39,7 +39,7 @@ const findTask = (root, uuid) => {
 const findTasks = (root, uuid) => {
   if (!uuid) return root
   const { task } = findTask(root, uuid)
-  if (task) return task.children || []
+  if (task) return task.subtasks || []
 }
 
 const store = new Vuex.Store({
@@ -110,7 +110,7 @@ const store = new Vuex.Store({
         uuid: uuidv4(),
         changed: now,
         moved: now,
-        children: []
+        subtasks: []
       }
       if (!state.selectedTask) {
         // Append to the root list
@@ -122,8 +122,8 @@ const store = new Vuex.Store({
       const { task, tasks, index } = findTask(state.tasks, state.selectedTask) || {}
       if (!task) return
       if (subtask) {
-        // To the selected task children
-        task.children.push(newTask)
+        // To the selected task subtasks
+        task.subtasks.push(newTask)
         task.expanded = true
       } else {
         // Or next to the selected task
@@ -134,13 +134,13 @@ const store = new Vuex.Store({
     moveTask (state, { uuid, target, index }) {
       if (uuid === target) return
       const { task, ...source } = findTask(state.tasks, uuid)
-      if (!task || findTask(task.children || [], target)) return
+      if (!task || findTask(task.subtasks || [], target)) return
       let targetTasks
       if (target) {
         const { task: targetTask } = findTask(state.tasks, target) || {}
         if (!targetTask) return
         targetTask.expanded = true
-        targetTasks = targetTask.children
+        targetTasks = targetTask.subtasks
       } else targetTasks = state.tasks
       source.tasks.splice(source.index, 1)
       if (index === undefined) targetTasks.push(task)

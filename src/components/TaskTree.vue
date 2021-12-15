@@ -29,7 +29,7 @@
                 @focus="$emit('select', task.uuid)"
                 @dblclick="$emit('open', task.uuid)">
                 <div
-                  v-if="task.children.length > 0"
+                  v-if="task.subtasks.length > 0"
                   class="expander ml-n3 d-flex justify-center"
                   @click.prevent.stop="$emit('expand', task.uuid)">
                   <v-icon>
@@ -47,9 +47,9 @@
                 </drop>
               </v-sheet>
               <task-tree
-                v-if="(task.children.length > 0) && task.expanded"
+                v-if="(task.subtasks.length > 0) && task.expanded"
                 :parent="task.uuid"
-                :tasks="task.children"
+                :tasks="task.subtasks"
                 :selected-task="selectedTask"
                 v-on="$listeners">
               </task-tree>
