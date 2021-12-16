@@ -3,7 +3,8 @@
     <v-btn
       v-for="state of states" :key="state.value"
       depressed rounded class="ml-1"
-      :color="state.value === value ? 'success' : undefined"
+      :color="state.value === value && state.color"
+      :class="{ muted: state.value !== value }"
       :text="state.value !== value"
       @click="$emit('input', state.value) && blur()">
       {{ state.title }}
@@ -19,9 +20,9 @@ export default {
   },
   computed: {
     states: () => [
-      { value: 0, title: 'Open', icon: 'radio_button_unchecked' },
-      { value: 1, title: 'In Progress', icon: 'contrast' },
-      { value: 2, title: 'Complete', icon: 'circle' }
+      { value: 0, title: 'Open', icon: 'radio_button_unchecked', color: undefined },
+      { value: 1, title: 'In Progress', icon: 'contrast', color: 'info' },
+      { value: 2, title: 'Complete', icon: 'circle', color: 'success' }
     ],
     blur () {
       let focusable = this.$el.parentElement
