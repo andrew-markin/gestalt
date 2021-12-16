@@ -4,11 +4,8 @@
     v-model="visible">
     <v-card class="pa-5">
       <div class="d-flex align-center">
-        <span class="text-h5 mr-10">Task</span>
-        <task-state-input
-          class="d-inline flex-grow-1"
-          v-model="state">
-        </task-state-input>
+        <span class="text-h5">Task</span>
+        <v-spacer/><task-state-input v-model="state"/>
       </div>
       <v-form
         ref="form"
@@ -44,7 +41,7 @@
         <v-btn
           ref="saveButton"
           depressed color="primary"
-          :disabled="!demandedTask || !valid"
+          :disabled="!demandedTask || !valid || !modified"
           @click="save">
           Save
         </v-btn>
@@ -84,6 +81,15 @@ export default {
     task () {
       const { uuid } = this.demandedTask || {}
       return this.getTask(uuid)
+    },
+    trimmedDescription () {
+      return this.description.trim()
+    },
+    modified () {
+      if (!this.task) return true
+      if (!this.task.data) return false
+      const { description, state } = this.task.data
+      return (this.trimmedDescription !== description) || (this.state !== state)
     }
   },
   watch: {
@@ -108,19 +114,17 @@ export default {
       element.setSelectionRange(position, position)
     },
     async save () {
-      if (!this.demandedTask || !this.$refs.form.validate()) return
-      if (!this.task || (this.description !== this.task.data.description) ||
-          (this.state !== this.task.data.state)) {
-        const { uuid, subtask } = this.demandedTask
-        await this.upsertTask({
-          uuid,
-          subtask,
-          data: {
-            description: this.description.trim(),
-            state: this.state
-          }
-        })
-      }
+      if (!this.demandedTask || !this.modified ||
+          !this.$refs.form.validate()) return
+      const { uuid, subtask } = this.demandedTask
+      await this.upsertTask({
+        uuid,
+        subtask,
+        data: {
+          description: this.trimmedDescription,
+          state: this.state
+        }
+      })
       this.demandTask()
     }
   }

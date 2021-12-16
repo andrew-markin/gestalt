@@ -1,29 +1,14 @@
 <template>
-  <div class="d-flex justify-space-between">
-    <v-chip
-      class="text-button"
-      :ripple="false"
-      :color="value === 0 ? 'success' : undefined"
-      @click="$emit('input', 0)">
-      Open
-      <v-icon right>radio_button_unchecked</v-icon>
-    </v-chip>
-    <v-icon>east</v-icon>
-    <v-chip
-      class="text-button"
-      :color="value === 1 ? 'success' : undefined"
-      @click="$emit('input', 1)">
-      In Progress
-      <v-icon right>contrast</v-icon>
-    </v-chip>
-    <v-icon>east</v-icon>
-    <v-chip
-      class="text-button"
-      :color="value === 2 ? 'success' : undefined"
-      @click="$emit('input', 2)">
-      Complete
-      <v-icon right>circle</v-icon>
-    </v-chip>
+  <div class="d-inline">
+    <v-btn
+      v-for="state of states" :key="state.value"
+      depressed rounded class="ml-1"
+      :color="state.value === value ? 'success' : undefined"
+      :text="state.value !== value"
+      @click="$emit('input', state.value) && blur()">
+      {{ state.title }}
+      <v-icon right>{{ state.icon }}</v-icon>
+    </v-btn>
   </div>
 </template>
 
@@ -31,6 +16,20 @@
 export default {
   props: {
     value: { type: Number, default: 0 }
+  },
+  computed: {
+    states: () => [
+      { value: 0, title: 'Open', icon: 'radio_button_unchecked' },
+      { value: 1, title: 'In Progress', icon: 'contrast' },
+      { value: 2, title: 'Complete', icon: 'circle' }
+    ],
+    blur () {
+      let focusable = this.$el.parentElement
+      while (focusable && (focusable.getAttribute('tabindex') !== '0')) {
+        focusable = focusable.parentElement
+      }
+      return () => { focusable && focusable.focus() }
+    }
   }
 }
 </script>
