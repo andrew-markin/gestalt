@@ -3,7 +3,13 @@
     max-width="600"
     v-model="visible">
     <v-card class="pa-5">
-      <span class="text-h5">Task</span>
+      <div class="d-flex align-center">
+        <span class="text-h5 mr-10">Task</span>
+        <task-state-input
+          class="d-inline flex-grow-1"
+          v-model="state">
+        </task-state-input>
+      </div>
       <v-form
         ref="form"
         v-model="valid"
@@ -48,15 +54,20 @@
 </template>
 
 <script>
+import TaskStateInput from './TaskStateInput.vue'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 
 export default {
+  components: {
+    TaskStateInput
+  },
   data: () => ({
     description: '',
     descriptionRules: [
       (value) => (!!value && (value.trim().length > 0)) || 'Description is required',
       (value) => (value.length <= 256) || 'Description must be less than or equal to 256 characters'
     ],
+    state: 0,
     valid: true
   }),
   computed: {
@@ -78,10 +89,12 @@ export default {
   watch: {
     demandedTask () {
       if (this.task) {
-        const { description } = this.task.data
+        const { description, state } = this.task.data || {}
         this.description = description || ''
+        this.state = state || 0
       } else {
         this.description = ''
+        this.state = 0
       }
       if (this.$refs.form) this.$refs.form.resetValidation()
     }
@@ -96,13 +109,15 @@ export default {
     },
     async save () {
       if (!this.demandedTask || !this.$refs.form.validate()) return
-      if (!this.task || (this.description !== this.task.data.description)) {
+      if (!this.task || (this.description !== this.task.data.description) ||
+          (this.state !== this.task.data.state)) {
         const { uuid, subtask } = this.demandedTask
         await this.upsertTask({
           uuid,
           subtask,
           data: {
-            description: this.description.trim()
+            description: this.description.trim(),
+            state: this.state
           }
         })
       }

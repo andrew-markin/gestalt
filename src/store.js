@@ -5,10 +5,11 @@ import { v4 as uuidv4 } from 'uuid'
 Vue.use(Vuex)
 
 const importTasks = (tasks) => {
-  return tasks.map(({ uuid, subtasks, expanded, ...rest }) => ({
+  return tasks.map(({ uuid, subtasks, expanded, state, ...rest }) => ({
     uuid: uuid || uuidv4(),
     subtasks: importTasks(subtasks || []),
     expanded: expanded || false,
+    state: state || 0,
     ...rest
   }))
 }
