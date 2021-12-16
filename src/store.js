@@ -25,16 +25,20 @@ const exportTasks = (tasks) => {
 const findTask = (root, uuid) => {
   if (!root || !uuid) return
   const scope = [root]
+  let previous, result
   while (scope.length > 0) {
     const tasks = scope.shift()
     for (let index = 0; index < tasks.length; index++) {
       const task = tasks[index]
-      if (task.uuid === uuid) return { task, tasks, index }
+      if (result) return { previous, next: task.uuid, ...result }
+      if (task.uuid === uuid) result = { task, tasks, index }
+      else previous = task.uuid
       if (task.subtasks && (task.subtasks.length > 0)) {
         scope.push(task.subtasks)
       }
     }
   }
+  if (result) return { previous, ...result }
 }
 
 const findTasks = (root, uuid) => {
@@ -159,7 +163,12 @@ const store = new Vuex.Store({
       if (!uuid) return
       if (state?.demandedTask?.uuid === uuid) state.demandedTask = undefined
       const match = findTask(state.tasks, uuid)
-      if (match) match.tasks.splice(match.index, 1)
+      if (!match) return
+      match.tasks.splice(match.index, 1)
+      if (state.selectedTask !== uuid) return
+      if (match.previous) state.selectedTask = match.previous
+      else if (match.next) state.selectedTask = match.next
+      else state.selectedTask = undefined
     },
     expandTask (state, uuid) {
       const { task } = findTask(state.tasks, uuid) || {}
