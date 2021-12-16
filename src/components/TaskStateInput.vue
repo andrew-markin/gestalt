@@ -3,7 +3,7 @@
     <v-btn
       v-for="state of states" :key="state.value"
       depressed rounded class="ml-1"
-      :color="state.value === value && state.color"
+      :color="state.value === value && state.color || undefined"
       :class="{ muted: state.value !== value }"
       :text="state.value !== value"
       @click="$emit('input', state.value) && blur()">
