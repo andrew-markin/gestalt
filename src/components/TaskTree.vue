@@ -31,7 +31,8 @@
                 <div
                   v-if="task.subtasks.length > 0"
                   class="expander ml-n3 d-flex justify-center"
-                  @click.prevent.stop="$emit('expand', task.uuid)">
+                  @click.prevent.stop="$emit('expand', task.uuid)"
+                  @dblclick.prevent.stop>
                   <v-icon>
                     {{ task.expanded ? 'expand_less' : 'expand_more' }}
                   </v-icon>
