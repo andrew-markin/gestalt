@@ -26,21 +26,27 @@ const exportTasks = (tasks) => {
 
 const findTask = (root, uuid) => {
   if (!root || !uuid) return
-  const scope = [root]
+  let tasks = root
+  let index = 0
+  const stack = []
   let previous, result
-  while (scope.length > 0) {
-    const tasks = scope.shift()
-    for (let index = 0; index < tasks.length; index++) {
-      const task = tasks[index]
-      if (result) return { previous, next: task.uuid, ...result }
-      if (task.uuid === uuid) result = { task, tasks, index }
-      else previous = task.uuid
-      if (task.subtasks && (task.subtasks.length > 0)) {
-        scope.push(task.subtasks)
-      }
+  while (tasks) {
+    if (index >= tasks.length) {
+      [tasks, index] = stack.pop() || []
+      continue
+    }
+    const task = tasks[index]
+    if (result) return { ...result, next: task.uuid }
+    if (task.uuid === uuid) result = { task, tasks, index, previous }
+    else previous = task.uuid
+    index += 1
+    if (task.subtasks.length > 0) {
+      stack.push([tasks, index])
+      tasks = task.subtasks
+      index = 0
     }
   }
-  if (result) return { previous, ...result }
+  return result
 }
 
 const findTasks = (root, uuid) => {
