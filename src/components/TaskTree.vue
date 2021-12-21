@@ -116,9 +116,11 @@ export default {
 .bridge {
   width: 1rem;
   padding-bottom: 1.5rem;
+  margin-left: -2px;
   border-bottom: var(--pipe-border);
 }
 .bridge.last {
+  margin-left: 0;
   border-left: var(--pipe-border);
   border-bottom-left-radius: 4px;
 }
