@@ -27,7 +27,7 @@
       <div class="d-flex">
         <v-btn
           v-if="task"
-          depressed dark color="deep-orange"
+          depressed
           @click="deleteTask(task.uuid)">
           Delete
         </v-btn>
