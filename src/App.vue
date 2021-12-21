@@ -64,8 +64,11 @@ export default {
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
 }
-.muted {
+.muted-1 {
   opacity: 0.5;
+}
+.muted-2 {
+  opacity: 0.25;
 }
 .v-icon {
   transition: none !important;

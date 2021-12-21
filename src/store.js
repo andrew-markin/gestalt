@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { v4 as uuidv4 } from 'uuid'
+import { TaskStates } from './consts'
 
 Vue.use(Vuex)
 
@@ -10,12 +11,13 @@ const importTasks = (tasks) => {
     subtasks: importTasks(subtasks || []),
     expanded: expanded || false,
     state: state || 0,
+    computed: { state: undefined },
     ...rest
   }))
 }
 
 const exportTasks = (tasks) => {
-  return tasks.map(({ subtasks, expanded, ...rest }) => ({
+  return tasks.map(({ subtasks, expanded, computed, ...rest }) => ({
     ...(subtasks.length > 0) && { subtasks: exportTasks(subtasks) },
     ...(expanded) && { expanded },
     ...rest
@@ -45,6 +47,20 @@ const findTasks = (root, uuid) => {
   if (!uuid) return root
   const { task } = findTask(root, uuid)
   if (task) return task.subtasks || []
+}
+
+const updateComputedStates = (tasks) => {
+  for (const task of tasks) {
+    updateComputedStates(task.subtasks)
+    let state = task.data.state
+    for (const subtask of task.subtasks) {
+      if (state === TaskStates.InProgress) break
+      if (state === subtask.computed.state) continue
+      state = TaskStates.InProgress
+      break
+    }
+    task.computed.state = state
+  }
 }
 
 const store = new Vuex.Store({
@@ -98,6 +114,7 @@ const store = new Vuex.Store({
   mutations: {
     updateTasks (state, value) {
       state.tasks = value
+      updateComputedStates(state.tasks)
     },
     upsertTask (state, { uuid, subtask, data }) {
       const now = Date.now()
@@ -107,6 +124,7 @@ const store = new Vuex.Store({
         if (!task) return
         task.data = data
         task.changed = now
+        updateComputedStates(state.tasks)
         return
       }
       // Create new task
@@ -115,11 +133,13 @@ const store = new Vuex.Store({
         uuid: uuidv4(),
         changed: now,
         moved: now,
-        subtasks: []
+        subtasks: [],
+        computed: { state: undefined }
       }
       if (!state.selectedTask) {
         // Append to the root list
         state.tasks.push(newTask)
+        updateComputedStates(state.tasks)
         state.selectedTask = newTask.uuid
         return
       }
@@ -134,6 +154,7 @@ const store = new Vuex.Store({
         // Or next to the selected task
         tasks.splice(index + 1, 0, newTask)
       }
+      updateComputedStates(state.tasks)
       state.selectedTask = newTask.uuid
     },
     moveTask (state, { uuid, target, index }) {
@@ -151,6 +172,7 @@ const store = new Vuex.Store({
       if (index === undefined) targetTasks.push(task)
       else targetTasks.splice(index, 0, task)
       task.moved = Date.now()
+      updateComputedStates(state.tasks)
     },
     reorderTask (state, { parent, from, to }) {
       const tasks = findTasks(state.tasks, parent)
@@ -165,6 +187,7 @@ const store = new Vuex.Store({
       const match = findTask(state.tasks, uuid)
       if (!match) return
       match.tasks.splice(match.index, 1)
+      updateComputedStates(state.tasks)
       if (state.selectedTask !== uuid) return
       if (match.previous) state.selectedTask = match.previous
       else if (match.next) state.selectedTask = match.next

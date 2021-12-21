@@ -4,7 +4,7 @@
       v-for="state of states" :key="state.value"
       depressed rounded class="ml-1"
       :color="state.value === value && state.color || undefined"
-      :class="{ muted: state.value !== value }"
+      :class="{ 'muted-1': state.value !== value }"
       :text="state.value !== value"
       @click="$emit('input', state.value) && blur()">
       {{ state.title }}
@@ -14,16 +14,29 @@
 </template>
 
 <script>
+import { TaskStates } from '../consts'
+
 export default {
   props: {
     value: { type: Number, default: 0 }
   },
   computed: {
-    states: () => [
-      { value: 0, title: 'Open', icon: 'radio_button_unchecked', color: undefined },
-      { value: 1, title: 'In Progress', icon: 'contrast', color: 'info' },
-      { value: 2, title: 'Complete', icon: 'circle', color: 'success' }
-    ],
+    states: () => [{
+      value: TaskStates.Open,
+      title: 'Open',
+      icon: 'radio_button_unchecked',
+      color: undefined
+    }, {
+      value: TaskStates.InProgress,
+      title: 'In Progress',
+      icon: 'contrast',
+      color: 'info'
+    }, {
+      value: TaskStates.Complete,
+      title: 'Complete',
+      icon: 'circle',
+      color: 'success'
+    }],
     blur () {
       let focusable = this.$el.parentElement
       while (focusable && (focusable.getAttribute('tabindex') !== '0')) {

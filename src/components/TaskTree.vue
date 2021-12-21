@@ -37,10 +37,13 @@
                     {{ task.expanded ? 'expand_less' : 'expand_more' }}
                   </v-icon>
                 </div>
-                <div class="d-flex align-center overflow-hidden">
+                <div class="d-flex flex-grow-1 align-center overflow-hidden">
                   <span class="text-body-1 text-truncate">
                     {{ task.data.description }}
                   </span>
+                </div>
+                <div class="ml-3 d-flex align-center">
+                  <task-state-icon :state="task.computed.state"/>
                 </div>
                 <drop
                   class="drop-area"
@@ -85,10 +88,11 @@
 
 <script>
 import { Drag, Drop, DropList } from 'vue-easy-dnd'
+import TaskStateIcon from './TaskStateIcon.vue'
 
 export default {
   name: 'task-tree',
-  components: { Drag, Drop, DropList },
+  components: { Drag, Drop, DropList, TaskStateIcon },
   props: {
     parent: { type: String },
     tasks: { type: Array, default: () => [] },
