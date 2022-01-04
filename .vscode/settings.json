@@ -1,8 +1,27 @@
 {
+  "editor.folding": false,
+  "editor.glyphMargin": false,
   "editor.insertSpaces": true,
+  "editor.minimap.renderCharacters": false,
+  "editor.minimap.showSlider": "always",
+  "editor.renderWhitespace": "all",
+  "editor.scrollBeyondLastLine": false,
   "editor.tabSize": 2,
-  "files.trimTrailingWhitespace": true,
-  "files.insertFinalNewline": true,
   "files.encoding": "utf8",
   "files.eol": "\n",
+  "files.exclude": {
+    "**/dist": true,
+    "**/node_modules": true,
+    "package-lock.json": true
+  },
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "search.exclude": {
+    "**/dist": true,
+    "**/node_modules": true
+  },
+  "workbench.colorCustomizations": {
+    "statusBar.background" : "#333333"
+  }
 }

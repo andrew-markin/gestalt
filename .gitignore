@@ -3,5 +3,6 @@
 .env.local
 .env.*.local
 .vscode/*
+!.vscode/extensions.json
 !.vscode/settings.json
 .DS_Store
