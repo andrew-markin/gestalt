@@ -20,10 +20,23 @@ import { mapState, mapActions, mapMutations } from 'vuex'
 
 export default {
   components: { TaskTree },
-  computed: mapState(['tasks', 'selectedTask']),
+  computed: {
+    ...mapState(['tasks', 'selectedTask']),
+    gestaltKey () {
+      return this.$route.params.key
+    }
+  },
+  watch: {
+    gestaltKey () {
+      this.loadGestalt()
+    }
+  },
   methods: {
-    ...mapActions(['moveTask', 'reorderTask', 'expandTask']),
+    ...mapActions(['load', 'moveTask', 'reorderTask', 'expandTask']),
     ...mapMutations(['selectTask', 'demandTask']),
+    loadGestalt () {
+      this.load(this.gestaltKey)
+    },
     open (uuid) {
       this.selectTask(uuid)
       this.demandTask({ uuid })
@@ -41,6 +54,9 @@ export default {
     select (uuid) {
       this.selectTask(uuid)
     }
+  },
+  mounted () {
+    this.loadGestalt()
   }
 }
 </script>

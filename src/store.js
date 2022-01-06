@@ -1,7 +1,11 @@
+import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { v4 as uuidv4 } from 'uuid'
+
 import { TaskStates } from './consts'
+import { decrypt, encrypt, hmac } from './crypto'
+
+const ID_SALT = '270c151d9e99f4369e898aa262f01be1d0cdce5d40501b4baf6d4ab1725f84a5'
 
 Vue.use(Vuex)
 
@@ -71,6 +75,7 @@ const updateComputedStates = (tasks) => {
 
 const store = new Vuex.Store({
   state: {
+    key: undefined,
     tasks: [],
     selectedTask: undefined,
     demandedTask: undefined
@@ -83,43 +88,43 @@ const store = new Vuex.Store({
     }
   },
   actions: {
-    init ({ dispatch }) {
-      dispatch('loadTasks')
+    load ({ commit }, key) {
+      const id = hmac(key, ID_SALT)
+      const json = decrypt(localStorage.getItem(id), key)
+      const tasks = importTasks((json && JSON.parse(json)) || [])
+      commit('update', { key, tasks })
     },
-    loadTasks ({ commit }) {
-      const json = localStorage.getItem('tasks')
-      const tasks = importTasks(JSON.parse(json) || [])
-      commit('updateTasks', tasks)
-    },
-    saveTasks ({ state }) {
+    save ({ state }) {
+      const id = hmac(state.key, ID_SALT)
       const json = JSON.stringify(exportTasks(state.tasks))
-      localStorage.setItem('tasks', json)
+      localStorage.setItem(id, encrypt(json, state.key))
     },
     async upsertTask ({ commit, dispatch }, { uuid, subtask, data }) {
       commit('upsertTask', { uuid, subtask, data })
-      await dispatch('saveTasks')
+      await dispatch('save')
     },
     async moveTask ({ commit, dispatch }, { uuid, target, index }) {
       commit('moveTask', { uuid, target, index })
-      await dispatch('saveTasks')
+      await dispatch('save')
     },
     async reorderTask ({ commit, dispatch }, { parent, from, to }) {
       commit('reorderTask', { parent, from, to })
-      await dispatch('saveTasks')
+      await dispatch('save')
     },
     async deleteTask ({ commit, dispatch }, uuid) {
       commit('deleteTask', uuid)
-      await dispatch('saveTasks')
+      await dispatch('save')
     },
     async expandTask ({ commit, dispatch }, uuid) {
       if (!uuid) return
       commit('expandTask', uuid)
-      await dispatch('saveTasks')
+      await dispatch('save')
     }
   },
   mutations: {
-    updateTasks (state, value) {
-      state.tasks = value
+    update (state, { key, tasks }) {
+      state.key = key
+      state.tasks = tasks
       updateComputedStates(state.tasks)
     },
     upsertTask (state, { uuid, subtask, data }) {
@@ -212,7 +217,5 @@ const store = new Vuex.Store({
     }
   }
 })
-
-store.dispatch('init')
 
 export default store
