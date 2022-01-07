@@ -51,8 +51,8 @@
 </template>
 
 <script>
-import TaskStateInput from './TaskStateInput.vue'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+import TaskStateInput from './TaskStateInput.vue'
 
 export default {
   components: {

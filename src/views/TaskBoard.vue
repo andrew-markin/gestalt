@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import TaskTree from '../components/TaskTree.vue'
 import { mapState, mapActions, mapMutations } from 'vuex'
+import TaskTree from '../components/TaskTree.vue'
 
 export default {
   components: { TaskTree },

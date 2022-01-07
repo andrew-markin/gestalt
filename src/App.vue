@@ -43,8 +43,8 @@
 </template>
 
 <script>
-import TaskDialog from './components/TaskDialog.vue'
 import { mapState, mapMutations } from 'vuex'
+import TaskDialog from './components/TaskDialog.vue'
 
 export default {
   components: {

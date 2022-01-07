@@ -1,9 +1,8 @@
+import { decrypt, encrypt, hmac } from './crypto'
+import { TaskStates } from './consts'
 import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
 import Vuex from 'vuex'
-
-import { TaskStates } from './consts'
-import { decrypt, encrypt, hmac } from './crypto'
 
 const ID_SALT = '270c151d9e99f4369e898aa262f01be1d0cdce5d40501b4baf6d4ab1725f84a5'
 
