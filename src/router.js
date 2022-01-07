@@ -1,4 +1,4 @@
-import { generateKey } from './crypto'
+import { generateKey } from './utils'
 import TaskBoard from './views/TaskBoard.vue'
 import Vue from 'vue'
 import VueRouter from 'vue-router'

@@ -1,10 +1,8 @@
-import { decrypt, encrypt, hmac } from './crypto'
+import { getIdFromKey, pack, unpack } from './utils'
 import { TaskStates } from './consts'
 import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
 import Vuex from 'vuex'
-
-const ID_SALT = '270c151d9e99f4369e898aa262f01be1d0cdce5d40501b4baf6d4ab1725f84a5'
 
 Vue.use(Vuex)
 
@@ -88,15 +86,15 @@ const store = new Vuex.Store({
   },
   actions: {
     load ({ commit }, key) {
-      const id = hmac(key, ID_SALT)
-      const json = decrypt(localStorage.getItem(id), key)
+      const id = getIdFromKey(key)
+      const json = unpack(localStorage.getItem(id), key)
       const tasks = importTasks((json && JSON.parse(json)) || [])
       commit('update', { key, tasks })
     },
     save ({ state }) {
-      const id = hmac(state.key, ID_SALT)
+      const id = getIdFromKey(state.key)
       const json = JSON.stringify(exportTasks(state.tasks))
-      localStorage.setItem(id, encrypt(json, state.key))
+      localStorage.setItem(id, pack(json, state.key))
     },
     async upsertTask ({ commit, dispatch }, { uuid, subtask, data }) {
       commit('upsertTask', { uuid, subtask, data })
