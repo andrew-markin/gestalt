@@ -2,6 +2,7 @@ import AES from 'crypto-js/aes'
 import CryptoJS from 'crypto-js/core'
 import HmacSHA256 from 'crypto-js/hmac-sha256'
 import pako from 'pako'
+import Vue from 'vue'
 
 const ID_SALT = '270c151d9e99f4369e898aa262f01be1d0cdce5d40501b4baf6d4ab1725f84a5'
 
@@ -43,3 +44,11 @@ export const unpack = (data, key) => {
   const deflated = wordArrayToUint8Array(AES.decrypt(data, key))
   return pako.inflate(deflated, { to: 'string' })
 }
+
+export const moveCursorToEnd = (event) => {
+  const element = event.target
+  const position = element.value.length
+  element.setSelectionRange(position, position)
+}
+
+Vue.prototype.$moveCursorToEnd = moveCursorToEnd

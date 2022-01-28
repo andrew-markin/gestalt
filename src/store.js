@@ -6,6 +6,10 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
+const unifyPrefs = (prefs) => {
+  return prefs.map(({ name, value, changed }) => ({ name, value, changed }))
+}
+
 const importTasks = (tasks) => {
   return tasks.map(({ uuid, subtasks, expanded, state, ...rest }) => ({
     uuid: uuid || uuidv4(),
@@ -73,11 +77,17 @@ const updateComputedStates = (tasks) => {
 const store = new Vuex.Store({
   state: {
     key: undefined,
+    prefs: [],
     tasks: [],
+    prefsDialogShown: false,
     selectedTask: undefined,
     demandedTask: undefined
   },
   getters: {
+    getPref: (state) => (name) => {
+      const pref = state.prefs.find(pref => pref.name === name) || {}
+      return pref.value
+    },
     getTask: (state) => (uuid) => {
       if (!uuid) return undefined
       const { task } = findTask(state.tasks, uuid) || {}
@@ -88,13 +98,22 @@ const store = new Vuex.Store({
     load ({ commit }, key) {
       const id = getIdFromKey(key)
       const json = unpack(localStorage.getItem(id), key)
-      const tasks = importTasks((json && JSON.parse(json)) || [])
-      commit('update', { key, tasks })
+      const data = (json && JSON.parse(json)) || {}
+      const prefs = unifyPrefs(data.prefs || [])
+      const tasks = importTasks(data.tasks || [])
+      commit('update', { key, prefs, tasks })
     },
     save ({ state }) {
       const id = getIdFromKey(state.key)
-      const json = JSON.stringify(exportTasks(state.tasks))
+      const json = JSON.stringify({
+        prefs: unifyPrefs(state.prefs),
+        tasks: exportTasks(state.tasks)
+      })
       localStorage.setItem(id, pack(json, state.key))
+    },
+    async setPref ({ commit, dispatch }, { name, value }) {
+      commit('setPref', { name, value })
+      await dispatch('save')
     },
     async upsertTask ({ commit, dispatch }, { uuid, subtask, data }) {
       commit('upsertTask', { uuid, subtask, data })
@@ -119,10 +138,24 @@ const store = new Vuex.Store({
     }
   },
   mutations: {
-    update (state, { key, tasks }) {
+    update (state, { key, prefs, tasks }) {
       state.key = key
+      state.prefs = prefs
       state.tasks = tasks
       updateComputedStates(state.tasks)
+    },
+    setPref (state, { name, value }) {
+      const now = Date.now()
+      const pref = state.prefs.find(pref => pref.name === name)
+      if (pref) {
+        pref.value = value
+        pref.changed = now
+      } else {
+        state.prefs.push({ name, value, changed: now })
+      }
+    },
+    setPrefsDialogShown (state, value = true) {
+      state.prefsDialogShown = value
     },
     upsertTask (state, { uuid, subtask, data }) {
       const now = Date.now()

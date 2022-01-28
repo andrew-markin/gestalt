@@ -14,12 +14,12 @@
         <v-textarea
           autofocus
           label="Description"
-          class="mt-5 mb-5"
+          class="my-5"
           rows="6" no-resize
           counter="256"
           v-model="description"
           required :rules="descriptionRules"
-          @focus="moveCursorToEnd"
+          @focus="$moveCursorToEnd"
           @keydown.enter.ctrl.exact.prevent="description += '\n'"
           @keydown.enter.exact.prevent="$refs.saveButton.$el.click()">
         </v-textarea>
@@ -41,7 +41,7 @@
         <v-btn
           ref="saveButton"
           depressed color="primary"
-          :disabled="!demandedTask || !valid || !modified"
+          :disabled="!visible || !valid || !modified"
           @click="save">
           Save
         </v-btn>
@@ -108,11 +108,6 @@ export default {
   methods: {
     ...mapActions(['upsertTask', 'deleteTask']),
     ...mapMutations(['demandTask']),
-    moveCursorToEnd (event) {
-      const element = event.target
-      const position = element.value.length
-      element.setSelectionRange(position, position)
-    },
     async save () {
       if (!this.demandedTask || !this.modified ||
           !this.$refs.form.validate()) return
@@ -125,7 +120,7 @@ export default {
           state: this.state
         }
       })
-      this.demandTask()
+      this.visible = false
     }
   }
 }

@@ -5,7 +5,7 @@
       color="white"
       elevation="2"
       elevate-on-scroll>
-      <v-container class="py-0 fill-height noselect">
+      <v-container class="d-flex py-0 noselect overflow-x-hidden">
         <v-avatar
           class="mr-3"
           size="32">
@@ -18,10 +18,20 @@
             </object>
           </div>
         </v-avatar>
-        <span class="text-h5 mr-3">Gestalt</span>
+        <div
+          id="title"
+          class="d-flex align-center text-h5 overflow-x-hidden"
+          @click="setPrefsDialogShown(true)">
+          <span class="font-weight-medium mr-2">Gestalt:</span>
+          <span
+            class="text-truncate"
+            :class="{ 'muted-1': !title }">
+            {{ title || 'Untitled' }}
+          </span>
+        </div>
         <v-spacer></v-spacer>
         <v-btn
-          depressed
+          depressed class="ml-2"
           @click="demandTask({})">
           <v-icon left>add</v-icon>
           Task
@@ -35,6 +45,7 @@
         </v-btn>
       </v-container>
     </v-app-bar>
+    <prefs-dialog></prefs-dialog>
     <task-dialog></task-dialog>
     <v-main class="grey lighten-4">
       <router-view/>
@@ -43,15 +54,25 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapGetters, mapMutations } from 'vuex'
+import PrefsDialog from './components/PrefsDialog.vue'
 import TaskDialog from './components/TaskDialog.vue'
 
 export default {
   components: {
+    PrefsDialog,
     TaskDialog
   },
-  computed: mapState(['selectedTask']),
-  methods: mapMutations(['demandTask'])
+  computed: {
+    ...mapState(['selectedTask']),
+    ...mapGetters(['getPref']),
+    title () {
+      return this.getPref('title')
+    }
+  },
+  methods: {
+    ...mapMutations(['setPrefsDialogShown', 'demandTask'])
+  }
 }
 </script>
 
@@ -85,5 +106,8 @@ export default {
   max-width: var(--favicon-extent);
   max-height: var(--favicon-extent);
   display: inline-block;
+}
+#title {
+  cursor: pointer;
 }
 </style>
