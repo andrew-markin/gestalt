@@ -1,6 +1,6 @@
 import { getIdFromKey, pack, unpack } from './utils'
 import { TaskStates } from './consts'
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4, validate as uuidValidate } from 'uuid'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -27,6 +27,19 @@ const exportTasks = (tasks) => {
     ...(expanded) && { expanded },
     ...rest
   }))
+}
+
+const filterTrash = (trash) => {
+  const result = {}
+  const oblivion = Date.now() - 31536000 // one year
+  for (const uuid in trash) {
+    if (!Object.prototype.hasOwnProperty.call(trash, uuid)) continue
+    if (!uuidValidate(uuid)) continue
+    const timestamp = +trash[uuid]
+    if (timestamp < oblivion) continue
+    result[uuid] = timestamp
+  }
+  return result
 }
 
 const findTask = (root, uuid) => {
@@ -79,6 +92,7 @@ const store = new Vuex.Store({
     key: undefined,
     prefs: [],
     tasks: [],
+    trash: {},
     prefsDialogShown: false,
     selectedTask: undefined,
     demandedTask: undefined
@@ -101,13 +115,15 @@ const store = new Vuex.Store({
       const data = (json && JSON.parse(json)) || {}
       const prefs = unifyPrefs(data.prefs || [])
       const tasks = importTasks(data.tasks || [])
-      commit('update', { key, prefs, tasks })
+      const trash = filterTrash(data.trash || {})
+      commit('update', { key, prefs, tasks, trash })
     },
     save ({ state }) {
       const id = getIdFromKey(state.key)
       const json = JSON.stringify({
         prefs: unifyPrefs(state.prefs),
-        tasks: exportTasks(state.tasks)
+        tasks: exportTasks(state.tasks),
+        trash: filterTrash(state.trash)
       })
       localStorage.setItem(id, pack(json, state.key))
     },
@@ -138,10 +154,11 @@ const store = new Vuex.Store({
     }
   },
   mutations: {
-    update (state, { key, prefs, tasks }) {
+    update (state, { key, prefs, tasks, trash }) {
       state.key = key
       state.prefs = prefs
       state.tasks = tasks
+      state.trash = trash
       updateComputedStates(state.tasks)
     },
     setPref (state, { name, value }) {
@@ -228,6 +245,7 @@ const store = new Vuex.Store({
       const match = findTask(state.tasks, uuid)
       if (!match) return
       match.tasks.splice(match.index, 1)
+      state.trash[uuid] = Date.now()
       updateComputedStates(state.tasks)
       if (state.selectedTask !== uuid) return
       if (match.previous) state.selectedTask = match.previous
