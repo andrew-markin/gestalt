@@ -43,6 +43,11 @@
           <v-icon left>add</v-icon>
           Subtask
         </v-btn>
+        <v-btn
+          depressed class="ml-2"
+          @click="sync()">
+          Sync
+        </v-btn>
       </v-container>
     </v-app-bar>
     <prefs-dialog></prefs-dialog>
@@ -54,7 +59,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex'
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import PrefsDialog from './components/PrefsDialog.vue'
 import TaskDialog from './components/TaskDialog.vue'
 
@@ -71,6 +76,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['sync']),
     ...mapMutations(['setPrefsDialogShown', 'demandTask'])
   }
 }

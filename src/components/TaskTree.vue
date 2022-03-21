@@ -10,7 +10,7 @@
         :data="task.uuid"
         :drag-image-opacity="0.9"
         @dragstart="$emit('select', task.uuid)">
-        <template #default>
+        <template #default v-if="!task.deleted">
           <div class="d-flex">
             <div
               v-if="!!parent"

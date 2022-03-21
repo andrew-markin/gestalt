@@ -45,6 +45,10 @@ export const unpack = (data, key) => {
   return pako.inflate(deflated, { to: 'string' })
 }
 
+export const digest = (data) => {
+  return CryptoJS.SHA256(data).toString()
+}
+
 export const moveCursorToEnd = (event) => {
   const element = event.target
   const position = element.value.length
