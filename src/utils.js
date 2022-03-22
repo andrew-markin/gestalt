@@ -49,6 +49,10 @@ export const digest = (data) => {
   return CryptoJS.SHA256(data).toString()
 }
 
+export const timestamp = () => {
+  return Date.now() * 1000 + Math.floor(Math.random() * 1000)
+}
+
 export const moveCursorToEnd = (event) => {
   const element = event.target
   const position = element.value.length
