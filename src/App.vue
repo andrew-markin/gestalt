@@ -75,6 +75,11 @@ export default {
       return this.getPref('title')
     }
   },
+  watch: {
+    title () {
+      document.title = this.title || 'Gestalt'
+    }
+  },
   methods: {
     ...mapActions(['sync']),
     ...mapMutations(['setPrefsDialogShown', 'demandTask'])
