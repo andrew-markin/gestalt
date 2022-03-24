@@ -43,7 +43,7 @@
                   </span>
                 </div>
                 <div class="ml-3 d-flex align-center">
-                  <task-state-icon :state="task.computed.state"/>
+                  <task-state-icon :state="task.state"/>
                 </div>
                 <drop
                   class="drop-area"

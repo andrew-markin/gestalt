@@ -7,13 +7,13 @@ const extend = (tasks) => {
     subtasks: extend(subtasks || []),
     expanded: expanded || false,
     deleted: deleted || false,
-    computed: { state: undefined },
+    state: undefined,
     ...rest
   }))
 }
 
 const reduce = (tasks, remote = false) => {
-  return tasks.map(({ subtasks, expanded, deleted, created, computed, ...rest }) => ({
+  return tasks.map(({ subtasks, expanded, deleted, created, state, ...rest }) => ({
     ...(subtasks.length > 0) && { subtasks: reduce(subtasks, remote) },
     ...(!remote && expanded) && { expanded },
     ...(!remote && deleted) && { deleted },
@@ -61,11 +61,11 @@ const recomputeStates = (tasks) => {
     for (const subtask of task.subtasks) {
       if (subtask.deleted) continue
       if (state === TaskStates.InProgress) break
-      if (state === subtask.computed.state) continue
+      if (state === subtask.state) continue
       state = TaskStates.InProgress
       break
     }
-    task.computed.state = state
+    task.state = state
   }
 }
 

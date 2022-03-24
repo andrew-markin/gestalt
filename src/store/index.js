@@ -209,7 +209,7 @@ const store = new Vuex.Store({
         expanded: false,
         deleted: false,
         created: true, // Created locally
-        computed: { state: undefined }
+        state: undefined
       }
       if (!state.selectedTask) {
         // Append to the root list
