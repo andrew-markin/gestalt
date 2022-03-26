@@ -49,8 +49,19 @@ export const digest = (data) => {
   return CryptoJS.SHA256(data).toString()
 }
 
+let timestampDiff = 0
+
 export const timestamp = () => {
-  return Date.now() * 1000 + Math.floor(Math.random() * 1000)
+  return (Date.now() + timestampDiff) * 1000 + Math.floor(Math.random() * 1000)
+}
+
+const syncTimestamp = async () => {
+  let localTimestamp = Date.now()
+  const response = await fetch('http://worldclockapi.com/api/json/utc/now')
+  localTimestamp = (localTimestamp + Date.now()) / 2
+  const data = await response.json()
+  const remoteTimestamp = data.currentFileTime / 10000 - 11644473600000
+  timestampDiff = Math.floor(remoteTimestamp - localTimestamp)
 }
 
 export const moveCursorToEnd = (event) => {
@@ -58,5 +69,7 @@ export const moveCursorToEnd = (event) => {
   const position = element.value.length
   element.setSelectionRange(position, position)
 }
+
+syncTimestamp()
 
 Vue.prototype.$moveCursorToEnd = moveCursorToEnd
