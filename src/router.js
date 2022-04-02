@@ -8,7 +8,7 @@ Vue.use(VueRouter)
 export default new VueRouter({
   routes: [{
     name: 'board',
-    path: '/:key([0-9a-fA-F]{64})',
+    path: '/:key([a-zA-Z0-9]{43})',
     component: TaskBoard
   }, {
     path: '*',

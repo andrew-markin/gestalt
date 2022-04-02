@@ -1,4 +1,5 @@
 import AES from 'crypto-js/aes'
+import baseX from 'base-x'
 import CryptoJS from 'crypto-js/core'
 import HmacSHA256 from 'crypto-js/hmac-sha256'
 import pako from 'pako'
@@ -25,8 +26,11 @@ const wordArrayToUint8Array = (wordArray) => {
   return result
 }
 
+const base62 = baseX('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
+
 export const generateKey = () => {
-  return CryptoJS.lib.WordArray.random(256 / 8).toString() // 256 bit key
+  const key = CryptoJS.lib.WordArray.random(256 / 8)
+  return base62.encode(wordArrayToUint8Array(key))
 }
 
 export const keyToRef = (key) => {
