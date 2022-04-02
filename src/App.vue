@@ -20,7 +20,7 @@
         </v-avatar>
         <div
           id="title"
-          class="d-flex align-center text-h5 overflow-x-hidden"
+          class="d-flex align-center text-h5 overflow-x-hidden pr-4"
           @click="setPrefsDialogShown(true)">
           <span class="font-weight-medium mr-2">Gestalt:</span>
           <span
@@ -28,6 +28,12 @@
             :class="{ 'muted-1': !title }">
             {{ title || 'Untitled' }}
           </span>
+          <v-badge
+            class="ml-2"
+            color="grey"
+            dot offset-y="-6"
+            :value="modified">
+          </v-badge>
         </div>
         <v-spacer></v-spacer>
         <v-btn
@@ -43,11 +49,6 @@
           <v-icon left>add</v-icon>
           Subtask
         </v-btn>
-        <v-btn
-          depressed class="ml-2"
-          @click="sync()">
-          Sync
-        </v-btn>
       </v-container>
     </v-app-bar>
     <prefs-dialog></prefs-dialog>
@@ -59,7 +60,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+import { mapState, mapGetters, mapMutations } from 'vuex'
 import PrefsDialog from './components/PrefsDialog.vue'
 import TaskDialog from './components/TaskDialog.vue'
 
@@ -70,7 +71,7 @@ export default {
   },
   computed: {
     ...mapState(['selectedTask']),
-    ...mapGetters(['getPref']),
+    ...mapGetters(['modified', 'getPref']),
     title () {
       return this.getPref('title')
     }
@@ -81,7 +82,6 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['sync']),
     ...mapMutations(['setPrefsDialogShown', 'demandTask'])
   }
 }

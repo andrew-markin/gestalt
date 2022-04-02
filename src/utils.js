@@ -4,7 +4,7 @@ import HmacSHA256 from 'crypto-js/hmac-sha256'
 import pako from 'pako'
 import Vue from 'vue'
 
-const ID_SALT = '270c151d9e99f4369e898aa262f01be1d0cdce5d40501b4baf6d4ab1725f84a5'
+const REF_SALT = '270c151d9e99f4369e898aa262f01be1d0cdce5d40501b4baf6d4ab1725f84a5'
 
 const uint8ArrayToWordArray = (source) => {
   const sourceLength = source.length
@@ -29,8 +29,8 @@ export const generateKey = () => {
   return CryptoJS.lib.WordArray.random(256 / 8).toString() // 256 bit key
 }
 
-export const getIdFromKey = (key) => {
-  return HmacSHA256(key, ID_SALT).toString()
+export const keyToRef = (key) => {
+  return HmacSHA256(key, REF_SALT).toString()
 }
 
 export const pack = (message, key) => {
@@ -45,23 +45,14 @@ export const unpack = (data, key) => {
   return pako.inflate(deflated, { to: 'string' })
 }
 
-export const digest = (data) => {
-  return CryptoJS.SHA256(data).toString()
-}
-
 let timestampDiff = 0
 
 export const timestamp = () => {
   return (Date.now() + timestampDiff) * 1000 + Math.floor(Math.random() * 1000)
 }
 
-const syncTimestamp = async () => {
-  let localTimestamp = Date.now()
-  const response = await fetch('http://worldclockapi.com/api/json/utc/now')
-  localTimestamp = (localTimestamp + Date.now()) / 2
-  const data = await response.json()
-  const remoteTimestamp = data.currentFileTime / 10000 - 11644473600000
-  timestampDiff = Math.floor(remoteTimestamp - localTimestamp)
+export const adjustTimestamp = (diff) => {
+  timestampDiff = diff
 }
 
 export const moveCursorToEnd = (event) => {
@@ -69,7 +60,5 @@ export const moveCursorToEnd = (event) => {
   const position = element.value.length
   element.setSelectionRange(position, position)
 }
-
-syncTimestamp()
 
 Vue.prototype.$moveCursorToEnd = moveCursorToEnd

@@ -1,26 +1,17 @@
-import { getFirestore, doc, runTransaction } from 'firebase/firestore'
-import { getIdFromKey, pack, unpack, digest, timestamp } from '../utils'
-import { initializeApp } from 'firebase/app'
+import { keyToRef, pack, unpack, timestamp, adjustTimestamp } from '../utils'
+import { Mutex } from 'async-mutex'
 import { v4 as uuidv4 } from 'uuid'
+import io from 'socket.io-client'
 import Prefs from './prefs'
 import Tasks from './tasks'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
+const SYNC_DELAY = 2000
+const SYNC_ENSURE_INTERVAL = 30000
+const SYNC_ATTEMPTS_COUNT = 10
+
 Vue.use(Vuex)
-
-// Initialize Firebase
-
-initializeApp({
-  apiKey: process.env.VUE_APP_FIREBASE_API_KEY,
-  authDomain: process.env.VUE_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VUE_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VUE_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VUE_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VUE_APP_FIREBASE_APP_ID
-})
-
-const db = getFirestore()
 
 // Utilities
 
@@ -47,17 +38,73 @@ const mergeContexts = (local, remote) => {
   }
 }
 
+// Socket.IO setup
+
+const socket = io(process.env.VUE_APP_BACKEND, {
+  transports: ['websocket']
+})
+
+socket.on('connect', async () => {
+  // Adjust local timestams
+  let localTimestamp = Date.now()
+  const { timestamp: remoteTimestamp } = await submit('now')
+  localTimestamp = Math.floor((localTimestamp + Date.now()) / 2)
+  adjustTimestamp(remoteTimestamp - localTimestamp)
+  store.dispatch('setupSocket')
+})
+
+socket.on('changed', () => {
+  store.dispatch('sync')
+})
+
+const submit = (event, ...args) => {
+  return new Promise((resolve, reject) => {
+    if (!socket.connected) return reject(new Error('Socket is not connected'))
+    socket.emit(event, ...args, (res) => {
+      const { error, ...rest } = res || {}
+      if (error) reject(new Error(error))
+      else resolve(rest)
+    })
+  })
+}
+
+const sleep = (timeout) => {
+  return new Promise((resolve) => {
+    setTimeout(() => { resolve() }, timeout)
+  })
+}
+
+let syncTimeout
+
+const syncLater = () => {
+  clearTimeout(syncTimeout)
+  syncTimeout = setTimeout(() => {
+    syncTimeout = undefined
+    store.dispatch('sync')
+  }, SYNC_DELAY)
+}
+
+setInterval(() => {
+  store.dispatch('syncIfNeeded')
+}, SYNC_ENSURE_INTERVAL)
+
+const syncMutex = new Mutex()
+
 const store = new Vuex.Store({
   state: {
     key: undefined,
     prefs: [],
     tasks: [],
-    digest: undefined, // rename to stamp?
+    version: undefined,
     prefsDialogShown: false,
     selectedTask: undefined,
     demandedTask: undefined
   },
   getters: {
+    modified (state) {
+      return !state.version && ((state.prefs.length > 0) ||
+                                (state.tasks.length > 0))
+    },
     getPref: (state) => (name) => {
       return Prefs.getValue(state.prefs, name)
     },
@@ -67,107 +114,177 @@ const store = new Vuex.Store({
     }
   },
   actions: {
+    async setupSocket ({ state, dispatch }) {
+      if (!socket.connected) return
+      await submit('ref', keyToRef(state.key))
+      await dispatch('sync')
+    },
+    async resetSocket () {
+      if (!socket.connected) return
+      await submit('ref', undefined)
+    },
     saveLocal ({ state }, { name, value }) {
-      const id = getIdFromKey(state.key)
-      localStorage.setItem(`gestalt:${id}:${name}`, value)
+      const itemKey = `gestalt:${keyToRef(state.key)}:${name}`
+      if (value !== undefined) localStorage.setItem(itemKey, value)
+      else localStorage.removeItem(itemKey)
     },
     loadLocal ({ state }, name) {
-      const id = getIdFromKey(state.key)
-      return localStorage.getItem(`gestalt:${id}:${name}`)
+      const itemKey = `gestalt:${keyToRef(state.key)}:${name}`
+      return localStorage.getItem(itemKey) || undefined
     },
     async load ({ commit, dispatch }, key) {
-      commit('setKey', key)
-      const data = await dispatch('loadLocal', 'data')
-      commit('setContext', unpackContext(data, key))
-      const digest = await dispatch('loadLocal', 'digest')
-      commit('setDigest', digest)
+      const release = await syncMutex.acquire()
+      try {
+        await dispatch('resetSocket')
+        commit('setKey', key)
+        const data = await dispatch('loadLocal', 'data')
+        commit('setContext', unpackContext(data, key))
+        const version = await dispatch('loadLocal', 'version')
+        commit('setVersion', version)
+        await dispatch('setupSocket')
+      } catch (err) {
+        console.warn('Unable to load state:', err.message)
+      } finally {
+        release()
+      }
     },
-    save ({ state, dispatch }) {
-      dispatch('saveLocal', {
+    async save ({ state, dispatch }) {
+      await dispatch('saveLocal', {
         name: 'data',
         value: packContext(state, state.key)
       })
     },
-    setDigest ({ state, commit, dispatch }, value) {
-      if (state.digest === value) return
-      commit('setDigest', value)
-      dispatch('saveLocal', { name: 'digest', value })
-      // TODO: If value is undefined then start sync timer
+    async setVersion ({ state, commit, dispatch }, value) {
+      if (!value) syncLater()
+      if (state.version === value) return
+      commit('setVersion', value)
+      await dispatch('saveLocal', { name: 'version', value })
+    },
+    async syncIfNeeded ({ state, dispatch }) {
+      if (!socket.connected || state.version || syncTimeout) return
+      await dispatch('sync')
     },
     async sync ({ state, commit, dispatch }) {
-      console.log('Syncing...')
+      clearTimeout(syncTimeout)
+      syncTimeout = undefined
+      if (!socket.connected) return
+      const release = await syncMutex.acquire()
       try {
-        const id = getIdFromKey(state.key)
-        const consensus = {}
-        await runTransaction(db, async (transaction) => {
-          const docRef = doc(db, 'gestalts', id)
-          const obj = await transaction.get(docRef)
-          let { data } = (obj && obj.data()) || {}
-
-          if (data) {
-            const remote = {
-              digest: digest(data),
-              context: unpackContext(data, state.key)
-            }
-
-            if (state.digest) {
+        let attempts = SYNC_ATTEMPTS_COUNT
+        let nextContext, nextVersion
+        let res = await submit('get', { known: state.version })
+        while (attempts-- > 0) { // Consensus loop
+          let mergedContext
+          if (res.data) {
+            res.context = unpackContext(res.data, state.key)
+            if (state.version) {
               // There are no local changes...
-              if (state.digest !== remote.digest) {
+              if (state.version !== res.version) {
                 // There are remote changes...
-                consensus.context = remote.context
-                consensus.digest = remote.digest
+                nextContext = res.context
+                nextVersion = res.version
               }
-              return
+              break
             }
-            consensus.context = mergeContexts(state, remote.context)
-          }
+            mergedContext = mergeContexts(state, res.context)
+          } else if ((res.version === state.version) &&
+                     (res.version || ((state.prefs.length === 0) &&
+                                      (state.tasks.length === 0)))) break
 
-          data = packContext(consensus.context || state, state.key, true)
-          await transaction.set(docRef, { data })
-          consensus.digest = digest(data)
-        })
-        if (consensus.context) {
-          Tasks.transferExpanded(state.tasks, consensus.context.tasks)
-          commit('setContext', consensus.context)
+          const data = packContext(mergedContext || state, state.key, true)
+          res = await submit('set', { data, version: res.version })
+          if (res.success) {
+            nextContext = mergedContext || undefined
+            nextVersion = res.version
+            break
+          }
+          await sleep(200) // Wait for a while before next attempt
+        }
+        if (nextContext) {
+          Tasks.transferExpanded(state.tasks, nextContext.tasks)
+          commit('setContext', nextContext)
           await dispatch('save')
         }
-        if (consensus.digest) {
-          await dispatch('setDigest', consensus.digest)
+        if (nextVersion) {
+          await dispatch('setVersion', nextVersion)
         }
-        console.log('Done.')
       } catch (err) {
-        console.error('Error updating document:', err)
+        console.warn('Unable to sync:', err.message)
+      } finally {
+        release()
       }
     },
     async setPref ({ commit, dispatch }, { name, value }) {
-      commit('setPref', { name, value })
-      await dispatch('setDigest', undefined)
-      await dispatch('save')
+      const release = await syncMutex.acquire()
+      try {
+        commit('setPref', { name, value })
+        await dispatch('setVersion', undefined)
+        await dispatch('save')
+      } catch (err) {
+        console.warn('Unable to set preference:', err.message)
+      } finally {
+        release()
+      }
     },
     async upsertTask ({ commit, dispatch }, { uuid, subtask, data }) {
-      commit('upsertTask', { uuid, subtask, data })
-      await dispatch('setDigest', undefined)
-      await dispatch('save')
+      const release = await syncMutex.acquire()
+      try {
+        commit('upsertTask', { uuid, subtask, data })
+        await dispatch('setVersion', undefined)
+        await dispatch('save')
+      } catch (err) {
+        console.warn('Unable to upsert task:', err.message)
+      } finally {
+        release()
+      }
     },
     async moveTask ({ commit, dispatch }, { uuid, target, index }) {
-      commit('moveTask', { uuid, target, index })
-      await dispatch('setDigest', undefined)
-      await dispatch('save')
+      const release = await syncMutex.acquire()
+      try {
+        commit('moveTask', { uuid, target, index })
+        await dispatch('setVersion', undefined)
+        await dispatch('save')
+      } catch (err) {
+        console.warn('Unable to move task:', err.message)
+      } finally {
+        release()
+      }
     },
     async reorderTask ({ commit, dispatch }, { parent, from, to }) {
-      commit('reorderTask', { parent, from, to })
-      await dispatch('setDigest', undefined)
-      await dispatch('save')
+      const release = await syncMutex.acquire()
+      try {
+        commit('reorderTask', { parent, from, to })
+        await dispatch('setVersion', undefined)
+        await dispatch('save')
+      } catch (err) {
+        console.warn('Unable to reorder task:', err.message)
+      } finally {
+        release()
+      }
     },
     async deleteTask ({ commit, dispatch }, uuid) {
-      commit('deleteTask', uuid)
-      await dispatch('setDigest', undefined)
-      await dispatch('save')
+      const release = await syncMutex.acquire()
+      try {
+        commit('deleteTask', uuid)
+        await dispatch('setVersion', undefined)
+        await dispatch('save')
+      } catch (err) {
+        console.warn('Unable to delete task:', err.message)
+      } finally {
+        release()
+      }
     },
     async expandTask ({ commit, dispatch }, uuid) {
       if (!uuid) return
-      commit('expandTask', uuid)
-      await dispatch('save')
+      const release = await syncMutex.acquire()
+      try {
+        commit('expandTask', uuid)
+        await dispatch('save')
+      } catch (err) {
+        console.warn('Unable to expand task:', err.message)
+      } finally {
+        release()
+      }
     }
   },
   mutations: {
@@ -179,8 +296,8 @@ const store = new Vuex.Store({
     setKey (state, value) {
       state.key = value
     },
-    setDigest (state, value) {
-      state.digest = value
+    setVersion (state, value) {
+      state.version = value
     },
     setPref (state, { name, value }) {
       Prefs.setValue(state.prefs, name, value)
