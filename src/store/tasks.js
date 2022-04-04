@@ -34,11 +34,15 @@ const findOne = (root, uuid) => {
       continue
     }
     const task = tasks[index]
+    if (task.deleted) {
+      index += 1
+      continue
+    }
     if (result) return { ...result, next: task.uuid }
     if (task.uuid === uuid) result = { task, tasks, index, previous }
     else previous = task.uuid
     index += 1
-    if (task.subtasks.length > 0) {
+    if ((task.subtasks.length > 0) && task.expanded) {
       stack.push([tasks, index])
       tasks = task.subtasks
       index = 0
