@@ -1,3 +1,4 @@
+import { light, dark } from './themes'
 import App from './App.vue'
 import router from './router'
 import store from './store'
@@ -12,6 +13,11 @@ Vue.use(Vuetify)
 const vuetify = new Vuetify({
   icons: {
     iconfont: 'md'
+  },
+  theme: {
+    themes: { light, dark },
+    options: { customProperties: true },
+    dark: localStorage.getItem('dark') === 'true'
   },
   breakpoint: {
     thresholds: {

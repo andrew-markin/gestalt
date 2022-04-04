@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar
       app
-      color="white"
+      color="header"
       elevation="2"
       elevate-on-scroll>
       <v-container class="d-flex py-0 noselect overflow-x-hidden">
@@ -30,7 +30,6 @@
           </span>
           <v-badge
             class="ml-2"
-            color="grey"
             dot offset-y="-6"
             :value="modified">
           </v-badge>
@@ -72,13 +71,17 @@
               <v-icon left>radio_button_unchecked</v-icon>
               Reopen all tasks
             </v-list-item>
+            <v-list-item link @click="toggleDarkTheme">
+              <v-icon left>invert_colors</v-icon>
+              Toggle color theme
+            </v-list-item>
           </v-list>
         </v-menu>
       </v-container>
     </v-app-bar>
     <prefs-dialog></prefs-dialog>
     <task-dialog></task-dialog>
-    <v-main class="grey lighten-4">
+    <v-main class="background">
       <router-view/>
     </v-main>
   </v-app>
@@ -115,12 +118,20 @@ export default {
     ...mapMutations([
       'setPrefsDialogShown',
       'demandTask'
-    ])
+    ]),
+    toggleDarkTheme () {
+      const dark = !this.$vuetify.theme.dark
+      this.$vuetify.theme.dark = dark
+      localStorage.setItem('dark', dark)
+    }
   }
 }
 </script>
 
 <style>
+html {
+  overflow-y: auto;
+}
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */

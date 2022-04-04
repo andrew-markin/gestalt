@@ -30,7 +30,7 @@ export default {
       value: TaskStates.InProgress,
       title: 'In Progress',
       icon: 'contrast',
-      color: 'info'
+      color: 'primary'
     }, {
       value: TaskStates.Complete,
       title: 'Complete',

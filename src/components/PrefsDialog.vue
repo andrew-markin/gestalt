@@ -1,6 +1,7 @@
 <template>
   <v-dialog
     max-width="600"
+    overlay-color="grey darken-3"
     v-model="visible">
     <v-card class="pa-5">
       <span class="text-h5">Gestalt</span>

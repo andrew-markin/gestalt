@@ -25,7 +25,8 @@
               <v-sheet
                 tabindex="0"
                 class="task rounded mb-3 px-3 d-flex"
-                :class="{ selected: task.uuid === selectedTask }"
+                :dark="task.uuid === selectedTask"
+                :class="{ primary: task.uuid === selectedTask }"
                 @focus="$emit('select', task.uuid)"
                 @dblclick="$emit('open', task.uuid)">
                 <div
@@ -61,7 +62,7 @@
           </div>
         </template>
         <template #drag-image>
-          <v-sheet dark class="dragged rounded pa-2 d-flex align-center noselect">
+          <v-sheet dark class="primary dragged rounded pa-2 d-flex align-center noselect">
             <span class="text-body-1 text-truncate">
               {{ task.data.description }}
             </span>
@@ -113,8 +114,8 @@ export default {
 
 <style scoped>
 * {
-  --pipe-border: 2px solid #757575;
-  --feedback-border: 2px dashed #1B78CC;
+  --pipe-border: 2px solid var(--v-pipe-base);
+  --feedback-border: 2px dashed var(--v-primary-base);
 }
 .trunk {
   width: 1rem;
@@ -157,7 +158,6 @@ export default {
 }
 .dragged {
   max-width: 20rem;
-  background-color: #1B78CC;
   transform: translate(-4rem, -50%);
 }
 .drop-area.drop-in::before {
@@ -186,12 +186,5 @@ export default {
   bottom: 0;
   margin-top: -7px;
   border-top: var(--feedback-border);
-}
-.selected {
-  background-color: #1B78CC;
-  color: white;
-}
-.selected > * > .v-icon {
-  color: white;
 }
 </style>
