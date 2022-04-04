@@ -1,8 +1,10 @@
-import { keyToRef, pack, unpack, timestamp, adjustTimestamp } from '../utils'
+import { generateKey, keyToRef, pack, unpack, timestamp, adjustTimestamp } from '../utils'
 import { Mutex } from 'async-mutex'
 import { v4 as uuidv4 } from 'uuid'
+import copyToClipboard from 'copy-to-clipboard'
 import io from 'socket.io-client'
 import Prefs from './prefs'
+import router from '../router'
 import Tasks from './tasks'
 import Vue from 'vue'
 import Vuex from 'vuex'
@@ -36,6 +38,11 @@ const mergeContexts = (local, remote) => {
     prefs: Prefs.merge(local.prefs, remote.prefs),
     tasks: Tasks.merge(local.tasks, remote.tasks)
   }
+}
+
+const getBoardLink = (key) => {
+  const route = router.resolve({ name: 'board', params: { key } })
+  return new URL(route.href, window.location.href).href
 }
 
 // Socket.IO setup
@@ -123,8 +130,8 @@ const store = new Vuex.Store({
       if (!socket.connected) return
       await submit('ref', undefined)
     },
-    saveLocal ({ state }, { name, value }) {
-      const itemKey = `gestalt:${keyToRef(state.key)}:${name}`
+    saveLocal ({ state }, { name, value, key }) {
+      const itemKey = `gestalt:${keyToRef(key || state.key)}:${name}`
       if (value !== undefined) localStorage.setItem(itemKey, value)
       else localStorage.removeItem(itemKey)
     },
@@ -153,6 +160,18 @@ const store = new Vuex.Store({
         name: 'data',
         value: packContext(state, state.key)
       })
+    },
+    copyLink ({ state }) {
+      copyToClipboard(getBoardLink(state.key))
+    },
+    async duplicate ({ state, dispatch }) {
+      const key = generateKey()
+      await dispatch('saveLocal', {
+        key,
+        name: 'data',
+        value: packContext(state, key)
+      })
+      window.open(getBoardLink(key))
     },
     async setVersion ({ state, commit, dispatch }, value) {
       if (!value) syncLater()

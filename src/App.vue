@@ -49,6 +49,27 @@
           <v-icon left>add</v-icon>
           Subtask
         </v-btn>
+        <v-menu transition="slide-y-transition" offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              depressed
+              class="nominwidth pa-2 ml-2"
+              v-bind="attrs"
+              v-on="on">
+              <v-icon>menu</v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item link @click="copyLink">
+              <v-icon left>share</v-icon>
+              Copy Gestalt link
+            </v-list-item>
+            <v-list-item link @click="duplicate">
+              <v-icon left>content_copy</v-icon>
+              Duplicate Gestalt
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-container>
     </v-app-bar>
     <prefs-dialog></prefs-dialog>
@@ -60,7 +81,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex'
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import PrefsDialog from './components/PrefsDialog.vue'
 import TaskDialog from './components/TaskDialog.vue'
 
@@ -82,7 +103,14 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['setPrefsDialogShown', 'demandTask'])
+    ...mapActions([
+      'copyLink',
+      'duplicate'
+    ]),
+    ...mapMutations([
+      'setPrefsDialogShown',
+      'demandTask'
+    ])
   }
 }
 </script>
@@ -104,6 +132,9 @@ export default {
 }
 .v-icon {
   transition: none !important;
+}
+.nominwidth {
+  min-width: 0 !important
 }
 </style>
 
