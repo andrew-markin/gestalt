@@ -173,6 +173,11 @@ const store = new Vuex.Store({
       })
       window.open(getBoardLink(key))
     },
+    async reopenAllTasks ({ commit, dispatch }) {
+      commit('reopenAllTasks')
+      await dispatch('setVersion', undefined)
+      await dispatch('save')
+    },
     async setVersion ({ state, commit, dispatch }, value) {
       if (!value) syncLater()
       if (state.version === value) return
@@ -403,6 +408,10 @@ const store = new Vuex.Store({
       if (match.previous) state.selectedTask = match.previous
       else if (match.next) state.selectedTask = match.next
       else state.selectedTask = undefined
+    },
+    reopenAllTasks (state) {
+      Tasks.reopenAll(state.tasks)
+      Tasks.recomputeStates(state.tasks)
     },
     expandTask (state, uuid) {
       const { task } = Tasks.findOne(state.tasks, uuid) || {}

@@ -176,6 +176,13 @@ const merge = (local, remote) => {
   return cleanup(mergeTasks(local, remote))
 }
 
+const reopenAll = (tasks) => {
+  for (const task of tasks) {
+    task.data.state = TaskStates.Open
+    reopenAll(task.subtasks)
+  }
+}
+
 const transferExpanded = (source, target) => {
   const expanded = new Set()
   const copyExpanded = (tasks) => {
@@ -201,5 +208,6 @@ export default {
   findSubtasks,
   recomputeStates,
   merge,
+  reopenAll,
   transferExpanded
 }

@@ -68,6 +68,10 @@
               <v-icon left>content_copy</v-icon>
               Duplicate Gestalt
             </v-list-item>
+            <v-list-item link @click="reopenAllTasks">
+              <v-icon left>radio_button_unchecked</v-icon>
+              Reopen all tasks
+            </v-list-item>
           </v-list>
         </v-menu>
       </v-container>
@@ -105,7 +109,8 @@ export default {
   methods: {
     ...mapActions([
       'copyLink',
-      'duplicate'
+      'duplicate',
+      'reopenAllTasks'
     ]),
     ...mapMutations([
       'setPrefsDialogShown',
