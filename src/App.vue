@@ -2,9 +2,9 @@
   <v-app>
     <v-app-bar
       app
-      color="header"
       elevation="2"
-      elevate-on-scroll>
+      elevate-on-scroll
+      color="foreground">
       <v-container class="d-flex py-0 noselect overflow-x-hidden">
         <v-avatar
           class="mr-3"

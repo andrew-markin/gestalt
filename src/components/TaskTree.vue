@@ -115,7 +115,7 @@ export default {
 <style scoped>
 * {
   --pipe-border: 2px solid var(--v-pipe-base);
-  --feedback-border: 2px dashed var(--v-primary-base);
+  --feedback-border: 3px dashed var(--v-primary-base);
 }
 .trunk {
   width: 1rem;
@@ -136,6 +136,7 @@ export default {
   border-bottom-left-radius: 4px;
 }
 .task {
+  background: var(--v-foreground-base);
   position: relative;
   height: 3rem;
   cursor: pointer;
