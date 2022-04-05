@@ -61,11 +61,15 @@
           <v-list>
             <v-list-item link @click="copyLink">
               <v-icon left>share</v-icon>
-              Copy Gestalt link
+              Copy link
             </v-list-item>
-            <v-list-item link @click="duplicate">
+            <v-list-item link @click="newGestalt">
+              <v-icon left>open_in_new</v-icon>
+              New Gestalt
+            </v-list-item>
+            <v-list-item link @click="cloneGestalt">
               <v-icon left>content_copy</v-icon>
-              Duplicate Gestalt
+              Clone Gestalt
             </v-list-item>
             <v-list-item link @click="reopenAllTasks">
               <v-icon left>radio_button_unchecked</v-icon>
@@ -112,7 +116,8 @@ export default {
   methods: {
     ...mapActions([
       'copyLink',
-      'duplicate',
+      'newGestalt',
+      'cloneGestalt',
       'reopenAllTasks'
     ]),
     ...mapMutations([

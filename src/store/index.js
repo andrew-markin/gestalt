@@ -164,7 +164,10 @@ const store = new Vuex.Store({
     copyLink ({ state }) {
       copyToClipboard(getBoardLink(state.key))
     },
-    async duplicate ({ state, dispatch }) {
+    newGestalt () {
+      window.open(getBoardLink(generateKey()))
+    },
+    async cloneGestalt ({ state, dispatch }) {
       const key = generateKey()
       await dispatch('saveLocal', {
         key,
