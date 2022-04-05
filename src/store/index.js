@@ -102,15 +102,16 @@ const store = new Vuex.Store({
     key: undefined,
     prefs: [],
     tasks: [],
+    saved: true,
     version: undefined,
     prefsDialogShown: false,
     selectedTask: undefined,
     demandedTask: undefined
   },
   getters: {
-    modified (state) {
-      return !state.version && ((state.prefs.length > 0) ||
-                                (state.tasks.length > 0))
+    synced (state) {
+      return state.version || ((state.prefs.length === 0) &&
+                               (state.tasks.length === 0))
     },
     getPref: (state) => (name) => {
       return Prefs.getValue(state.prefs, name)
@@ -155,11 +156,17 @@ const store = new Vuex.Store({
         release()
       }
     },
-    async save ({ state, dispatch }) {
+    async save ({ state, dispatch, commit }) {
       await dispatch('saveLocal', {
         name: 'data',
         value: packContext(state, state.key)
       })
+      commit('setSaved', true)
+    },
+    async saveIfNeeded ({ state, dispatch }) {
+      if (state.saved) return
+      await dispatch('save')
+      await dispatch('setVersion', undefined)
     },
     copyLink ({ state }) {
       copyToClipboard(getBoardLink(state.key))
@@ -178,8 +185,7 @@ const store = new Vuex.Store({
     },
     async reopenAllTasks ({ commit, dispatch }) {
       commit('reopenAllTasks')
-      await dispatch('setVersion', undefined)
-      await dispatch('save')
+      await dispatch('saveIfNeeded')
     },
     async setVersion ({ state, commit, dispatch }, value) {
       if (!value) syncLater()
@@ -245,8 +251,7 @@ const store = new Vuex.Store({
       const release = await syncMutex.acquire()
       try {
         commit('setPref', { name, value })
-        await dispatch('setVersion', undefined)
-        await dispatch('save')
+        await dispatch('saveIfNeeded')
       } catch (err) {
         console.warn('Unable to set preference:', err.message)
       } finally {
@@ -257,8 +262,7 @@ const store = new Vuex.Store({
       const release = await syncMutex.acquire()
       try {
         commit('upsertTask', { uuid, subtask, data })
-        await dispatch('setVersion', undefined)
-        await dispatch('save')
+        await dispatch('saveIfNeeded')
       } catch (err) {
         console.warn('Unable to upsert task:', err.message)
       } finally {
@@ -269,8 +273,7 @@ const store = new Vuex.Store({
       const release = await syncMutex.acquire()
       try {
         commit('moveTask', { uuid, target, index })
-        await dispatch('setVersion', undefined)
-        await dispatch('save')
+        await dispatch('saveIfNeeded')
       } catch (err) {
         console.warn('Unable to move task:', err.message)
       } finally {
@@ -281,8 +284,7 @@ const store = new Vuex.Store({
       const release = await syncMutex.acquire()
       try {
         commit('reorderTask', { parent, from, to })
-        await dispatch('setVersion', undefined)
-        await dispatch('save')
+        await dispatch('saveIfNeeded')
       } catch (err) {
         console.warn('Unable to reorder task:', err.message)
       } finally {
@@ -293,8 +295,7 @@ const store = new Vuex.Store({
       const release = await syncMutex.acquire()
       try {
         commit('deleteTask', uuid)
-        await dispatch('setVersion', undefined)
-        await dispatch('save')
+        await dispatch('saveIfNeeded')
       } catch (err) {
         console.warn('Unable to delete task:', err.message)
       } finally {
@@ -319,15 +320,20 @@ const store = new Vuex.Store({
       state.prefs = prefs
       state.tasks = tasks
       Tasks.recomputeStates(state.tasks)
+      state.saved = false
     },
     setKey (state, value) {
       state.key = value
+    },
+    setSaved (state, value) {
+      state.saved = value
     },
     setVersion (state, value) {
       state.version = value
     },
     setPref (state, { name, value }) {
       Prefs.setValue(state.prefs, name, value)
+      state.saved = false
     },
     setPrefsDialogShown (state, value = true) {
       state.prefsDialogShown = value
@@ -341,6 +347,7 @@ const store = new Vuex.Store({
         task.data = data
         task.changed = now
         Tasks.recomputeStates(state.tasks)
+        state.saved = false
         return
       }
       // Create new task
@@ -360,6 +367,7 @@ const store = new Vuex.Store({
         state.tasks.push(newTask)
         Tasks.recomputeStates(state.tasks)
         state.selectedTask = newTask.uuid
+        state.saved = false
         return
       }
       // Insert at the selected task location
@@ -375,6 +383,7 @@ const store = new Vuex.Store({
       }
       Tasks.recomputeStates(state.tasks)
       state.selectedTask = newTask.uuid
+      state.saved = false
     },
     moveTask (state, { uuid, target, index }) {
       if (uuid === target) return
@@ -392,6 +401,7 @@ const store = new Vuex.Store({
       else targetTasks.splice(index, 0, task)
       task.moved = timestamp()
       Tasks.recomputeStates(state.tasks)
+      state.saved = false
     },
     reorderTask (state, { parent, from, to }) {
       const tasks = Tasks.findSubtasks(state.tasks, parent)
@@ -399,6 +409,7 @@ const store = new Vuex.Store({
       const task = tasks.splice(from, 1)[0]
       task.moved = timestamp()
       tasks.splice(to, 0, task)
+      state.saved = false
     },
     deleteTask (state, uuid) {
       if (!uuid) return
@@ -409,14 +420,16 @@ const store = new Vuex.Store({
       match.tasks.splice(match.index, 1)
       state.tasks.push(match.task)
       Tasks.recomputeStates(state.tasks)
+      state.saved = false
       if (state.selectedTask !== uuid) return
       if (match.previous) state.selectedTask = match.previous
       else if (match.next) state.selectedTask = match.next
       else state.selectedTask = undefined
     },
     reopenAllTasks (state) {
-      Tasks.reopenAll(state.tasks)
+      if (Tasks.reopenAll(state.tasks) === 0) return
       Tasks.recomputeStates(state.tasks)
+      state.saved = false
     },
     expandTask (state, uuid) {
       const { task } = Tasks.findOne(state.tasks, uuid) || {}

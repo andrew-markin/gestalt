@@ -31,7 +31,7 @@
           <v-badge
             class="ml-2"
             dot offset-y="-6"
-            :value="modified">
+            :value="!synced">
           </v-badge>
         </div>
         <v-spacer></v-spacer>
@@ -103,7 +103,7 @@ export default {
   },
   computed: {
     ...mapState(['selectedTask']),
-    ...mapGetters(['modified', 'getPref']),
+    ...mapGetters(['synced', 'getPref']),
     title () {
       return this.getPref('title')
     }

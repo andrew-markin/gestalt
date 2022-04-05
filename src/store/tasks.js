@@ -181,10 +181,15 @@ const merge = (local, remote) => {
 }
 
 const reopenAll = (tasks) => {
+  let reopened = 0
   for (const task of tasks) {
-    task.data.state = TaskStates.Open
-    reopenAll(task.subtasks)
+    if (task.data.state !== TaskStates.Open) {
+      task.data.state = TaskStates.Open
+      reopened += 1
+    }
+    reopened += reopenAll(task.subtasks)
   }
+  return reopened
 }
 
 const transferExpanded = (source, target) => {
