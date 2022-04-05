@@ -406,6 +406,8 @@ const store = new Vuex.Store({
       const match = Tasks.findOne(state.tasks, uuid)
       if (!match) return
       match.task.deleted = true
+      match.tasks.splice(match.index, 1)
+      state.tasks.push(match.task)
       Tasks.recomputeStates(state.tasks)
       if (state.selectedTask !== uuid) return
       if (match.previous) state.selectedTask = match.previous
