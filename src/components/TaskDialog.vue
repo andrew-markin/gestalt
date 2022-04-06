@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    max-width="600"
+    max-width="650"
     overlay-color="grey darken-3"
     v-model="visible">
     <v-card class="pa-5">

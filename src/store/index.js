@@ -183,8 +183,8 @@ const store = new Vuex.Store({
       })
       window.open(getBoardLink(key))
     },
-    async reopenAllTasks ({ commit, dispatch }) {
-      commit('reopenAllTasks')
+    async resetAllTasks ({ commit, dispatch }) {
+      commit('resetAllTasks')
       await dispatch('saveIfNeeded')
     },
     async setVersion ({ state, commit, dispatch }, value) {
@@ -426,8 +426,8 @@ const store = new Vuex.Store({
       else if (match.next) state.selectedTask = match.next
       else state.selectedTask = undefined
     },
-    reopenAllTasks (state) {
-      if (Tasks.reopenAll(state.tasks) === 0) return
+    resetAllTasks (state) {
+      if (Tasks.resetAll(state.tasks) === 0) return
       Tasks.recomputeStates(state.tasks)
       state.saved = false
     },

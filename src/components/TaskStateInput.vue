@@ -23,8 +23,8 @@ export default {
   computed: {
     states () {
       return [{
-        value: TaskStates.Open,
-        title: this.$t('TASK_STATE_OPEN'),
+        value: TaskStates.Set,
+        title: this.$t('TASK_STATE_SET'),
         icon: 'radio_button_unchecked',
         color: undefined
       }, {

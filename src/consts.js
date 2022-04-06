@@ -1,5 +1,5 @@
 export const TaskStates = {
-  Open: 0,
+  Set: 0,
   InProgress: 1,
   Complete: 2
 }

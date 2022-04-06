@@ -71,9 +71,9 @@
               <v-icon left>content_copy</v-icon>
               {{ $t('CLONE_GESTALT') }}
             </v-list-item>
-            <v-list-item link @click="reopenAllTasks">
+            <v-list-item link @click="resetAllTasks">
               <v-icon left>radio_button_unchecked</v-icon>
-              {{ $t('REOPEN_ALL_TASKS') }}
+              {{ $t('RESET_ALL_TASKS') }}
             </v-list-item>
             <v-list-item link @click="toggleDarkTheme">
               <v-icon left>invert_colors</v-icon>
@@ -142,7 +142,7 @@ export default {
       'copyLink',
       'newGestalt',
       'cloneGestalt',
-      'reopenAllTasks'
+      'resetAllTasks'
     ]),
     ...mapMutations([
       'setPrefsDialogShown',
