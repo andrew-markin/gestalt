@@ -4,17 +4,17 @@
     overlay-color="grey darken-3"
     v-model="visible">
     <v-card class="pa-5">
-      <span class="text-h5">Gestalt</span>
+      <span class="text-h5">{{ $t('GESTALT') }}</span>
       <v-form
         ref="form"
         v-model="valid"
         lazy-validation>
         <v-text-field
           autofocus
-          label="Title"
+          :label="$t('TITLE')"
           class="my-5"
           v-model="title"
-          placeholder="Untitled"
+          :placeholder="$t('UNTITLED')"
           :rules="titleRules"
           counter="64"
           @focus="$moveCursorToEnd"
@@ -27,14 +27,14 @@
           depressed
           class="mr-3"
           @click="visible = false">
-          Close
+          {{ $t('CLOSE') }}
         </v-btn>
         <v-btn
           ref="saveButton"
           depressed color="primary"
           :disabled="!visible || !valid || !modified"
           @click="save">
-          Save
+          {{ $t('SAVE') }}
         </v-btn>
       </div>
     </v-card>
@@ -47,9 +47,6 @@ import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 export default {
   data: () => ({
     title: '',
-    titleRules: [
-      (value) => (value.length <= 64) || 'Title must be less than or equal to 64 characters'
-    ],
     valid: true
   }),
   computed: {
@@ -62,6 +59,11 @@ export default {
       set (value) {
         if (!value) this.setPrefsDialogShown(false)
       }
+    },
+    titleRules () {
+      return [
+        (value) => (value.length <= 64) || this.$t('TITLE_LENGTH_LIMIT_MESSAGE')
+      ]
     },
     savedTitle () {
       return this.getPref('title')

@@ -21,22 +21,24 @@ export default {
     value: { type: Number, default: 0 }
   },
   computed: {
-    states: () => [{
-      value: TaskStates.Open,
-      title: 'Open',
-      icon: 'radio_button_unchecked',
-      color: undefined
-    }, {
-      value: TaskStates.InProgress,
-      title: 'In Progress',
-      icon: 'contrast',
-      color: 'primary'
-    }, {
-      value: TaskStates.Complete,
-      title: 'Complete',
-      icon: 'circle',
-      color: 'success'
-    }],
+    states () {
+      return [{
+        value: TaskStates.Open,
+        title: this.$t('TASK_STATE_OPEN'),
+        icon: 'radio_button_unchecked',
+        color: undefined
+      }, {
+        value: TaskStates.InProgress,
+        title: this.$t('TASK_STATE_IN_PROGRESS'),
+        icon: 'contrast',
+        color: 'primary'
+      }, {
+        value: TaskStates.Complete,
+        title: this.$t('TASK_STATE_COMPLETE'),
+        icon: 'circle',
+        color: 'success'
+      }]
+    },
     blur () {
       let focusable = this.$el.parentElement
       while (focusable && (focusable.getAttribute('tabindex') !== '0')) {

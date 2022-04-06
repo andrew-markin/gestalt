@@ -5,7 +5,7 @@
     v-model="visible">
     <v-card class="pa-5">
       <div class="d-flex align-center">
-        <span class="text-h5">Task</span>
+        <span class="text-h5">{{ $t('TASK') }}</span>
         <v-spacer/><task-state-input v-model="state"/>
       </div>
       <v-form
@@ -14,7 +14,7 @@
         lazy-validation>
         <v-textarea
           autofocus
-          label="Description"
+          :label="$t('DESCRIPTION')"
           class="my-5"
           rows="6" no-resize
           counter="256"
@@ -30,21 +30,21 @@
           v-if="task"
           depressed
           @click="deleteTask(task.uuid)">
-          Delete
+          {{ $t('DELETE') }}
         </v-btn>
         <v-spacer></v-spacer>
         <v-btn
           depressed
           class="mr-3"
           @click="visible = false">
-          Close
+          {{ $t('CLOSE') }}
         </v-btn>
         <v-btn
           ref="saveButton"
           depressed color="primary"
           :disabled="!visible || !valid || !modified"
           @click="save">
-          Save
+          {{ $t('SAVE') }}
         </v-btn>
       </div>
     </v-card>
@@ -61,10 +61,6 @@ export default {
   },
   data: () => ({
     description: '',
-    descriptionRules: [
-      (value) => (!!value && (value.trim().length > 0)) || 'Description is required',
-      (value) => (value.length <= 256) || 'Description must be less than or equal to 256 characters'
-    ],
     state: 0,
     valid: true
   }),
@@ -78,6 +74,12 @@ export default {
       set (value) {
         if (!value) this.demandTask()
       }
+    },
+    descriptionRules () {
+      return [
+        (value) => (!!value && (value.trim().length > 0)) || this.$t('DESCRIPTION_REQUIRED_MESSAGE'),
+        (value) => (value.length <= 256) || this.$t('DESCRIPTION_LENGTH_LIMIT_MESSAGE')
+      ]
     },
     task () {
       const { uuid } = this.demandedTask || {}
