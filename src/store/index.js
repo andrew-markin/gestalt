@@ -48,7 +48,12 @@ const getBoardLink = (key) => {
 // Socket.IO setup
 
 const socket = io(process.env.VUE_APP_BACKEND, {
-  transports: ['websocket']
+  transports: ['websocket'],
+  auth: { key: process.env.VUE_APP_API_KEY }
+})
+
+socket.on('connect_error', (err) => {
+  console.warn('Socket connection error:', err.message)
 })
 
 socket.on('connect', async () => {
