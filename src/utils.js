@@ -5,7 +5,7 @@ import HmacSHA256 from 'crypto-js/hmac-sha256'
 import pako from 'pako'
 import Vue from 'vue'
 
-const REF_SALT = '270c151d9e99f4369e898aa262f01be1d0cdce5d40501b4baf6d4ab1725f84a5'
+const REF_SALT = process.env.VUE_APP_REF_SALT
 
 const uint8ArrayToWordArray = (source) => {
   const sourceLength = source.length
