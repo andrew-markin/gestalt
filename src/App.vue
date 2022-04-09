@@ -38,14 +38,14 @@
         <v-btn
           depressed class="ml-2"
           @click="demandTask({})">
-          <v-icon left>add</v-icon>
+          <v-icon left>{{ mdiPlus }}</v-icon>
           {{ $t('TASK') }}
         </v-btn>
         <v-btn
           depressed class="ml-2"
           @click="demandTask({ subtask: true })"
           :disabled="!selectedTask">
-          <v-icon left>add</v-icon>
+          <v-icon left>{{ mdiPlus }}</v-icon>
           {{ $t('SUBTASK') }}
         </v-btn>
         <v-menu transition="slide-y-transition" offset-y>
@@ -55,28 +55,28 @@
               class="nominwidth pa-2 ml-2"
               v-bind="attrs"
               v-on="on">
-              <v-icon>menu</v-icon>
+              <v-icon>{{ mdiMenu }}</v-icon>
             </v-btn>
           </template>
           <v-list>
             <v-list-item link @click="copyLink">
-              <v-icon left>share</v-icon>
+              <v-icon left>{{ mdiLinkVariant }}</v-icon>
               {{ $t('COPY_LINK') }}
             </v-list-item>
             <v-list-item link @click="newGestalt">
-              <v-icon left>open_in_new</v-icon>
+              <v-icon left>{{ mdiOpenInNew }}</v-icon>
               {{ $t('NEW_GESTALT') }}
             </v-list-item>
             <v-list-item link @click="cloneGestalt">
-              <v-icon left>content_copy</v-icon>
+              <v-icon left>{{ mdiContentDuplicate }}</v-icon>
               {{ $t('CLONE_GESTALT') }}
             </v-list-item>
             <v-list-item link @click="resetAllTasks">
-              <v-icon left>radio_button_unchecked</v-icon>
+              <v-icon left>{{ mdiCircleOutline }}</v-icon>
               {{ $t('RESET_ALL_TASKS') }}
             </v-list-item>
             <v-list-item link @click="toggleDarkTheme">
-              <v-icon left>invert_colors</v-icon>
+              <v-icon left>{{ mdiInvertColors }}</v-icon>
               {{ $t('TOGGLE_COLOR_THEME') }}
             </v-list-item>
             <v-subheader>
@@ -88,7 +88,7 @@
                 :key="locale.value"
                 :value="locale.value">
                 <v-list-item-title>
-                  <v-icon left>translate</v-icon>
+                  <v-icon left>{{ mdiTranslate }}</v-icon>
                   {{ locale.title }}
                 </v-list-item-title>
               </v-list-item>
@@ -111,11 +111,26 @@ import { preferLocale } from './i18n'
 import PrefsDialog from './components/PrefsDialog.vue'
 import TaskDialog from './components/TaskDialog.vue'
 
+import {
+  mdiPlus, mdiMenu, mdiLinkVariant, mdiOpenInNew, mdiContentDuplicate,
+  mdiCircleOutline, mdiInvertColors, mdiTranslate
+} from '@mdi/js'
+
 export default {
   components: {
     PrefsDialog,
     TaskDialog
   },
+  data: () => ({
+    mdiPlus,
+    mdiMenu,
+    mdiLinkVariant,
+    mdiOpenInNew,
+    mdiContentDuplicate,
+    mdiCircleOutline,
+    mdiInvertColors,
+    mdiTranslate
+  }),
   computed: {
     ...mapState(['selectedTask']),
     ...mapGetters(['synced', 'getPref']),

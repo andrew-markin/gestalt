@@ -35,7 +35,7 @@
                   @click.prevent.stop="$emit('expand', task.uuid)"
                   @dblclick.prevent.stop>
                   <v-icon>
-                    {{ task.expanded ? 'expand_less' : 'expand_more' }}
+                    {{ task.expanded ? mdiChevronUp : mdiChevronDown }}
                   </v-icon>
                 </div>
                 <div class="d-flex flex-grow-1 align-center overflow-hidden">
@@ -89,6 +89,7 @@
 
 <script>
 import { Drag, Drop, DropList } from 'vue-easy-dnd'
+import { mdiChevronDown, mdiChevronUp } from '@mdi/js'
 import TaskStateIcon from './TaskStateIcon.vue'
 
 export default {
@@ -99,6 +100,7 @@ export default {
     tasks: { type: Array, default: () => [] },
     selectedTask: { type: String }
   },
+  data: () => ({ mdiChevronDown, mdiChevronUp }),
   computed: {
     lastTaskIndex () {
       const tasks = this.tasks

@@ -3,6 +3,7 @@
 </template>
 
 <script>
+import { mdiCircleOutline, mdiCircleHalfFull, mdiCircle } from '@mdi/js'
 import { TaskStates } from '../consts'
 
 export default {
@@ -12,9 +13,9 @@ export default {
   computed: {
     icon () {
       switch (this.state) {
-        case TaskStates.Set: return 'radio_button_unchecked'
-        case TaskStates.InProgress: return 'contrast'
-        case TaskStates.Complete: return 'circle'
+        case TaskStates.Set: return mdiCircleOutline
+        case TaskStates.InProgress: return mdiCircleHalfFull
+        case TaskStates.Complete: return mdiCircle
         default: return undefined
       }
     },

@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import { mdiCircleOutline, mdiCircleHalfFull, mdiCircle } from '@mdi/js'
 import { TaskStates } from '../consts'
 
 export default {
@@ -25,17 +26,17 @@ export default {
       return [{
         value: TaskStates.Set,
         title: this.$t('TASK_STATE_SET'),
-        icon: 'radio_button_unchecked',
+        icon: mdiCircleOutline,
         color: undefined
       }, {
         value: TaskStates.InProgress,
         title: this.$t('TASK_STATE_IN_PROGRESS'),
-        icon: 'contrast',
+        icon: mdiCircleHalfFull,
         color: 'primary'
       }, {
         value: TaskStates.Complete,
         title: this.$t('TASK_STATE_COMPLETE'),
-        icon: 'circle',
+        icon: mdiCircle,
         color: 'success'
       }]
     },
