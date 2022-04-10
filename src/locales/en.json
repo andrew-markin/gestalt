@@ -9,6 +9,8 @@
   "DESCRIPTION_REQUIRED_MESSAGE": "Description is required",
   "DESCRIPTION": "Description",
   "GESTALT": "Gestalt",
+  "GITHUB_REPOSITORY": "GitHub repository",
+  "LINKEDIN_PROFILE": "LinkedIn profile",
   "NEW_GESTALT": "New Gestalt",
   "RESET_ALL_TASKS": "Reset all tasks",
   "SAVE": "Save",

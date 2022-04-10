@@ -9,6 +9,8 @@
   "DESCRIPTION_REQUIRED_MESSAGE": "Описание не может быть пустым",
   "DESCRIPTION": "Описание",
   "GESTALT": "Гештальт",
+  "GITHUB_REPOSITORY": "Страница на GitHub",
+  "LINKEDIN_PROFILE": "Профиль на LinkedIn",
   "NEW_GESTALT": "Новый Гештальт",
   "RESET_ALL_TASKS": "Перепоставить все задачи",
   "SAVE": "Сохранить",

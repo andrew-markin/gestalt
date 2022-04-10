@@ -79,6 +79,16 @@
               <v-icon left>{{ mdiInvertColors }}</v-icon>
               {{ $t('TOGGLE_COLOR_THEME') }}
             </v-list-item>
+            <v-divider></v-divider>
+            <v-list-item :href="github" target="_blank">
+              <v-icon left>{{ mdiGithub }}</v-icon>
+              {{ $t('GITHUB_REPOSITORY') }}
+            </v-list-item>
+            <v-list-item :href="linkedin" target="_blank">
+              <v-icon left>{{ mdiLinkedin }}</v-icon>
+              {{ $t('LINKEDIN_PROFILE') }}
+            </v-list-item>
+            <v-divider></v-divider>
             <v-subheader>
               {{ $t('APP_LANGUAGE') }}
             </v-subheader>
@@ -106,6 +116,7 @@
 </template>
 
 <script>
+import { github, linkedin } from './links'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 import { preferLocale } from './i18n'
 import PrefsDialog from './components/PrefsDialog.vue'
@@ -113,7 +124,7 @@ import TaskDialog from './components/TaskDialog.vue'
 
 import {
   mdiPlus, mdiMenu, mdiLinkVariant, mdiOpenInNew, mdiContentDuplicate,
-  mdiCircleOutline, mdiInvertColors, mdiTranslate
+  mdiCircleOutline, mdiInvertColors, mdiTranslate, mdiGithub, mdiLinkedin
 } from '@mdi/js'
 
 export default {
@@ -122,6 +133,8 @@ export default {
     TaskDialog
   },
   data: () => ({
+    github,
+    linkedin,
     mdiPlus,
     mdiMenu,
     mdiLinkVariant,
@@ -129,7 +142,9 @@ export default {
     mdiContentDuplicate,
     mdiCircleOutline,
     mdiInvertColors,
-    mdiTranslate
+    mdiTranslate,
+    mdiGithub,
+    mdiLinkedin
   }),
   computed: {
     ...mapState(['selectedTask']),
