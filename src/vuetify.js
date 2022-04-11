@@ -4,6 +4,13 @@ import { light, dark } from './themes'
 
 Vue.use(Vuetify)
 
+const DARK_KEY = 'dark'
+
+export const preferDark = (value) => {
+  if (value) localStorage.setItem(DARK_KEY, true)
+  else localStorage.removeItem(DARK_KEY)
+}
+
 export default new Vuetify({
   icons: {
     iconfont: 'mdiSvg'

@@ -118,6 +118,7 @@
 <script>
 import { github, linkedin } from './links'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+import { preferDark } from './vuetify'
 import { preferLocale } from './i18n'
 import PrefsDialog from './components/PrefsDialog.vue'
 import TaskDialog from './components/TaskDialog.vue'
@@ -184,7 +185,7 @@ export default {
     toggleDarkTheme () {
       const dark = !this.$vuetify.theme.dark
       this.$vuetify.theme.dark = dark
-      localStorage.setItem('dark', dark)
+      preferDark(dark)
     }
   },
   created () {
