@@ -166,6 +166,7 @@ export default {
     },
     '$i18n.locale': function (value) {
       preferLocale(value)
+      this.updateTitle()
     }
   },
   methods: {
@@ -180,7 +181,7 @@ export default {
       'demandTask'
     ]),
     updateTitle () {
-      document.title = this.title || this.$t('GESTALT')
+      document.title = `${this.$t('GESTALT')}: ${this.title || this.$t('UNTITLED')}`
     },
     toggleDarkTheme () {
       const dark = !this.$vuetify.theme.dark
