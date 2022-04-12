@@ -1,6 +1,6 @@
 <template>
   <drop-list
-    :class="{ 'mt-3': !parent }"
+    :class="{ 'mt-3': !parent, hoverable: !dragInProgress }"
     :items="tasks" column no-animations
     @insert="$emit('move', $event.data, parent, $event.index)"
     @reorder="$emit('reorder', parent, $event.from, $event.to)">
@@ -88,13 +88,20 @@
 </template>
 
 <script>
-import { Drag, Drop, DropList } from 'vue-easy-dnd'
+import { Drag, Drop, DropList, DragAwareMixin } from 'vue-easy-dnd'
 import { mdiChevronDown, mdiChevronUp } from '@mdi/js'
 import TaskStateIcon from './TaskStateIcon.vue'
 
 export default {
   name: 'task-tree',
-  components: { Drag, Drop, DropList, TaskStateIcon },
+  mixins: [DragAwareMixin],
+  components: {
+    Drag,
+    Drop,
+    DropList,
+    DragAwareMixin, // eslint-disable-line
+    TaskStateIcon
+  },
   props: {
     parent: { type: String },
     tasks: { type: Array, default: () => [] },
@@ -150,6 +157,9 @@ export default {
   right: 0;
   bottom: 0;
   margin: 20px;
+}
+.hoverable .task:hover {
+  background: var(--v-hover-base);
 }
 .task:focus {
   outline: none;
