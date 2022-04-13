@@ -4,21 +4,45 @@ import { light, dark } from './themes'
 
 Vue.use(Vuetify)
 
-const DARK_KEY = 'dark'
+let darkThemeIsPreferredBySystem = false
+const darkThemeMediaQuery = matchMedia && matchMedia('(prefers-color-scheme: dark)')
 
-export const preferDark = (value) => {
-  if (value) localStorage.setItem(DARK_KEY, true)
-  else localStorage.removeItem(DARK_KEY)
+if (darkThemeMediaQuery) {
+  darkThemeIsPreferredBySystem = darkThemeMediaQuery.matches
+  darkThemeMediaQuery.addEventListener('change', ({ matches }) => {
+    darkThemeIsPreferredBySystem = matches
+    updateDarkThemeState()
+  })
 }
 
-export default new Vuetify({
+const DARK_THEME_KEY = 'dark'
+
+const darkThemeIsPreferred = () => {
+  const darkThemeIsPreferredByUser = localStorage.getItem(DARK_THEME_KEY)
+  return darkThemeIsPreferredByUser !== null
+    ? darkThemeIsPreferredByUser === 'true'
+    : darkThemeIsPreferredBySystem
+}
+
+const updateDarkThemeState = () => {
+  vuetify.framework.theme.dark = darkThemeIsPreferred()
+}
+
+export const toggleDarkTheme = () => {
+  const dark = !vuetify.framework.theme.dark
+  if (dark !== darkThemeIsPreferredBySystem) localStorage.setItem(DARK_THEME_KEY, dark)
+  else localStorage.removeItem(DARK_THEME_KEY)
+  updateDarkThemeState()
+}
+
+const vuetify = new Vuetify({
   icons: {
     iconfont: 'mdiSvg'
   },
   theme: {
     themes: { light, dark },
     options: { customProperties: true },
-    dark: localStorage.getItem('dark') === 'true'
+    dark: darkThemeIsPreferred()
   },
   breakpoint: {
     thresholds: {
@@ -29,3 +53,5 @@ export default new Vuetify({
     }
   }
 })
+
+export default vuetify

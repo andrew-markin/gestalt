@@ -118,7 +118,7 @@
 <script>
 import { github, linkedin } from './links'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
-import { preferDark } from './vuetify'
+import { toggleDarkTheme } from './vuetify'
 import { preferLocale } from './i18n'
 import PrefsDialog from './components/PrefsDialog.vue'
 import TaskDialog from './components/TaskDialog.vue'
@@ -183,11 +183,7 @@ export default {
     updateTitle () {
       document.title = `${this.$t('GESTALT')}: ${this.title || this.$t('UNTITLED')}`
     },
-    toggleDarkTheme () {
-      const dark = !this.$vuetify.theme.dark
-      this.$vuetify.theme.dark = dark
-      preferDark(dark)
-    }
+    toggleDarkTheme
   },
   created () {
     this.updateTitle()
