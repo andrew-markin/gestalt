@@ -130,7 +130,7 @@ const store = new Vuex.Store({
     async setupSocket ({ state, dispatch }) {
       if (!socket.connected) return
       await submit('ref', keyToRef(state.key))
-      await dispatch('sync')
+      dispatch('sync')
     },
     async resetSocket () {
       if (!socket.connected) return
