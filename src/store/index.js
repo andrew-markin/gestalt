@@ -151,6 +151,7 @@ const store = new Vuex.Store({
         await dispatch('resetSocket')
         commit('setKey', key)
         const data = await dispatch('loadLocal', 'data')
+        commit('selectTask', undefined)
         commit('setContext', unpackContext(data, key))
         const version = await dispatch('loadLocal', 'version')
         commit('setVersion', version)
