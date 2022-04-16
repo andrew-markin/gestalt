@@ -29,15 +29,22 @@
                 :class="{ primary: task.uuid === selectedTask }"
                 @focus="$emit('select', task.uuid)"
                 @dblclick="$emit('open', task.uuid)">
-                <div
-                  v-if="task.subtasks.length > 0"
-                  class="expander ml-n3 d-flex justify-center"
-                  @click.prevent.stop="$emit('expand', task.uuid)"
-                  @dblclick.prevent.stop>
-                  <v-icon>
-                    {{ task.expanded ? mdiChevronUp : mdiChevronDown }}
-                  </v-icon>
-                </div>
+                <v-tooltip
+                  bottom open-delay="500"
+                  v-if="task.subtasks.length > 0">
+                  <template #activator="{ on, attrs }">
+                    <div
+                      class="expander ml-n3 d-flex justify-center"
+                      @click.prevent.stop="$emit('expand', task.uuid)"
+                      v-bind="attrs" v-on="on"
+                      @dblclick.prevent.stop>
+                      <v-icon>
+                        {{ task.expanded ? mdiChevronUp : mdiChevronDown }}
+                      </v-icon>
+                    </div>
+                  </template>
+                  <span>{{ task.expanded ? $t('TASK_COLLAPSE') : $t('TASK_EXPAND') }}</span>
+                </v-tooltip>
                 <div class="d-flex flex-grow-1 align-center overflow-hidden">
                   <span class="text-body-1 text-truncate">
                     {{ task.data.description }}

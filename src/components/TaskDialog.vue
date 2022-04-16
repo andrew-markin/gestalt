@@ -26,26 +26,44 @@
         </v-textarea>
       </v-form>
       <div class="d-flex">
-        <v-btn
-          v-if="task"
-          depressed
-          @click="deleteTask(task.uuid)">
-          {{ $t('DELETE') }}
-        </v-btn>
+        <v-tooltip
+          bottom open-delay="500"
+          v-if="task" depressed>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              depressed
+              v-bind="attrs" v-on="on"
+              @click="deleteTask(task.uuid)">
+              {{ $t('DELETE_TASK') }}
+            </v-btn>
+          </template>
+          <span>{{ $t('DELETE_TASK_TOOLTIP') }}</span>
+        </v-tooltip>
         <v-spacer></v-spacer>
-        <v-btn
-          depressed
-          class="mr-3"
-          @click="visible = false">
-          {{ $t('CLOSE') }}
-        </v-btn>
-        <v-btn
-          ref="saveButton"
-          depressed color="primary"
-          :disabled="!visible || !valid || !modified"
-          @click="save">
-          {{ $t('SAVE') }}
-        </v-btn>
+        <v-tooltip bottom open-delay="500">
+          <template #activator="{ on, attrs }">
+            <v-btn
+              depressed class="mr-3"
+              v-bind="attrs" v-on="on"
+              @click="visible = false">
+              {{ $t('CLOSE_DIALOG') }}
+            </v-btn>
+          </template>
+          <span>{{ $t('CLOSE_DIALOG_TOOLTIP') }}</span>
+        </v-tooltip>
+        <v-tooltip bottom open-delay="500">
+          <template #activator="{ on, attrs }">
+            <v-btn
+              ref="saveButton"
+              depressed color="primary"
+              :disabled="!visible || !valid || !modified"
+              v-bind="attrs" v-on="on"
+              @click="save">
+              {{ $t('SAVE_DIALOG') }}
+            </v-btn>
+          </template>
+          <span>{{ $t('SAVE_DIALOG_TOOLTIP') }}</span>
+        </v-tooltip>
       </div>
     </v-card>
   </v-dialog>

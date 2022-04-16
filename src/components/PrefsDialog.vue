@@ -23,19 +23,30 @@
       </v-form>
       <div class="d-flex">
         <v-spacer></v-spacer>
-        <v-btn
-          depressed
-          class="mr-3"
-          @click="visible = false">
-          {{ $t('CLOSE') }}
-        </v-btn>
-        <v-btn
-          ref="saveButton"
-          depressed color="primary"
-          :disabled="!visible || !valid || !modified"
-          @click="save">
-          {{ $t('SAVE') }}
-        </v-btn>
+        <v-tooltip bottom open-delay="500">
+          <template #activator="{ on, attrs }">
+            <v-btn
+              depressed class="mr-3"
+              v-bind="attrs" v-on="on"
+              @click="visible = false">
+              {{ $t('CLOSE_DIALOG') }}
+            </v-btn>
+          </template>
+          <span>{{ $t('CLOSE_DIALOG_TOOLTIP') }}</span>
+        </v-tooltip>
+        <v-tooltip bottom open-delay="500">
+          <template #activator="{ on, attrs }">
+            <v-btn
+              ref="saveButton"
+              depressed color="primary"
+              :disabled="!visible || !valid || !modified"
+              v-bind="attrs" v-on="on"
+              @click="save">
+              {{ $t('SAVE_DIALOG') }}
+            </v-btn>
+          </template>
+          <span>{{ $t('SAVE_DIALOG_TOOLTIP') }}</span>
+        </v-tooltip>
       </div>
     </v-card>
   </v-dialog>

@@ -18,92 +18,64 @@
             </object>
           </div>
         </v-avatar>
-        <div
-          id="title"
-          class="d-flex align-center text-h5 overflow-x-hidden pr-4"
-          @click="setPrefsDialogShown(true)">
-          <span class="font-weight-medium mr-2">{{ $t('GESTALT') }}:</span>
-          <span
-            class="text-truncate"
-            :class="{ 'muted-1': !title }">
-            {{ title || $t('UNTITLED') }}
-          </span>
-          <v-badge
-            class="ml-2"
-            dot offset-y="-6"
-            :value="!synced">
-          </v-badge>
-        </div>
+        <v-tooltip bottom open-delay="500">
+          <template #activator="{ on, attrs }">
+            <div
+              id="title"
+              class="d-flex align-center text-h5 overflow-x-hidden pr-4"
+              @click="setPrefsDialogShown(true)"
+              v-bind="attrs" v-on="on">
+              <span class="font-weight-medium mr-2">{{ $t('GESTALT') }}:</span>
+              <span
+                class="text-truncate"
+                :class="{ 'muted-1': !title }">
+                {{ title || $t('UNTITLED') }}
+              </span>
+              <v-badge
+                class="ml-2"
+                dot offset-y="-6"
+                :value="!synced">
+              </v-badge>
+            </div>
+          </template>
+          <span>{{ $t('GESTALT_TITLE_TOOLTIP') }}</span>
+        </v-tooltip>
         <v-spacer></v-spacer>
-        <v-btn
-          depressed class="ml-2"
-          @click="demandTask({})">
-          <v-icon left>{{ mdiPlus }}</v-icon>
-          {{ $t('TASK') }}
-        </v-btn>
-        <v-btn
-          depressed class="ml-2"
-          @click="demandTask({ subtask: true })"
-          :disabled="!selectedTask">
-          <v-icon left>{{ mdiPlus }}</v-icon>
-          {{ $t('SUBTASK') }}
-        </v-btn>
-        <v-menu transition="slide-y-transition" offset-y>
-          <template v-slot:activator="{ on, attrs }">
+        <v-tooltip bottom open-delay="500">
+          <template #activator="{ on, attrs }">
             <v-btn
-              depressed
-              class="nominwidth pa-2 ml-2"
-              v-bind="attrs"
-              v-on="on">
+              depressed class="ml-2"
+              @click="demandTask({})"
+              v-bind="attrs" v-on="on">
+              <v-icon left>{{ mdiPlus }}</v-icon>
+              {{ $t('TASK') }}
+            </v-btn>
+          </template>
+          <span>{{ $t('NEW_TASK_TOOLTIP') }}</span>
+        </v-tooltip>
+        <v-tooltip bottom open-delay="500">
+          <template #activator="{ on, attrs }">
+            <v-btn
+              depressed class="ml-2"
+              @click="demandTask({ subtask: true })"
+              :disabled="!selectedTask"
+              v-bind="attrs" v-on="on">
+              <v-icon left>{{ mdiPlus }}</v-icon>
+              {{ $t('SUBTASK') }}
+            </v-btn>
+          </template>
+          <span>{{ $t('NEW_SUBTASK_TOOLTIP') }}</span>
+        </v-tooltip>
+        <v-menu
+          open-on-hover transition="slide-y-transition" offset-y>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              depressed class="nominwidth pa-2 ml-2"
+              v-bind="attrs" v-on="on">
               <v-icon>{{ mdiMenu }}</v-icon>
             </v-btn>
           </template>
-          <v-list>
-            <v-list-item link @click="copyLink">
-              <v-icon left>{{ mdiLinkVariant }}</v-icon>
-              {{ $t('COPY_LINK') }}
-            </v-list-item>
-            <v-list-item link @click="newGestalt">
-              <v-icon left>{{ mdiOpenInNew }}</v-icon>
-              {{ $t('NEW_GESTALT') }}
-            </v-list-item>
-            <v-list-item link @click="cloneGestalt">
-              <v-icon left>{{ mdiContentDuplicate }}</v-icon>
-              {{ $t('CLONE_GESTALT') }}
-            </v-list-item>
-            <v-list-item link @click="resetAllTasks">
-              <v-icon left>{{ mdiCircleOutline }}</v-icon>
-              {{ $t('RESET_ALL_TASKS') }}
-            </v-list-item>
-            <v-list-item link @click="toggleDarkTheme">
-              <v-icon left>{{ mdiInvertColors }}</v-icon>
-              {{ $t('TOGGLE_COLOR_THEME') }}
-            </v-list-item>
-            <v-divider></v-divider>
-            <v-subheader>
-              {{ $t('APP_LANGUAGE') }}
-            </v-subheader>
-            <v-list-item-group v-model="$i18n.locale">
-              <v-list-item
-                v-for="locale in locales"
-                :key="locale.value"
-                :value="locale.value">
-                <v-list-item-title>
-                  <v-icon left>{{ mdiTranslate }}</v-icon>
-                  {{ locale.title }}
-                </v-list-item-title>
-              </v-list-item>
-            </v-list-item-group>
-            <v-divider></v-divider>
-            <v-list-item :href="github" target="_blank">
-              <v-icon left>{{ mdiGithub }}</v-icon>
-              {{ $t('GITHUB_REPOSITORY') }}
-            </v-list-item>
-            <v-list-item :href="linkedin" target="_blank">
-              <v-icon left>{{ mdiLinkedin }}</v-icon>
-              {{ $t('LINKEDIN_PROFILE') }}
-            </v-list-item>
-          </v-list>
+          <app-menu-list></app-menu-list>
         </v-menu>
       </v-container>
     </v-app-bar>
@@ -116,48 +88,25 @@
 </template>
 
 <script>
-import { github, linkedin } from './links'
 import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
-import { toggleDarkTheme } from './vuetify'
+import { mdiPlus, mdiMenu } from '@mdi/js'
 import { preferLocale } from './i18n'
+import AppMenuList from './components/AppMenuList.vue'
 import PrefsDialog from './components/PrefsDialog.vue'
 import TaskDialog from './components/TaskDialog.vue'
 
-import {
-  mdiPlus, mdiMenu, mdiLinkVariant, mdiOpenInNew, mdiContentDuplicate,
-  mdiCircleOutline, mdiInvertColors, mdiTranslate, mdiGithub, mdiLinkedin
-} from '@mdi/js'
-
 export default {
   components: {
+    AppMenuList,
     PrefsDialog,
     TaskDialog
   },
-  data: () => ({
-    github,
-    linkedin,
-    mdiPlus,
-    mdiMenu,
-    mdiLinkVariant,
-    mdiOpenInNew,
-    mdiContentDuplicate,
-    mdiCircleOutline,
-    mdiInvertColors,
-    mdiTranslate,
-    mdiGithub,
-    mdiLinkedin
-  }),
+  data: () => ({ mdiPlus, mdiMenu }),
   computed: {
     ...mapState(['selectedTask']),
     ...mapGetters(['synced', 'getPref']),
     title () {
       return this.getPref('title')
-    },
-    locales () {
-      return this.$i18n.availableLocales.map((locale) => ({
-        value: locale,
-        title: this.$t('_LOCALE_TITLE', locale)
-      }))
     }
   },
   watch: {
@@ -182,8 +131,7 @@ export default {
     ]),
     updateTitle () {
       document.title = `${this.$t('GESTALT')}: ${this.title || this.$t('UNTITLED')}`
-    },
-    toggleDarkTheme
+    }
   },
   created () {
     this.updateTitle()
