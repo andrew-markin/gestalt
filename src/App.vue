@@ -1,5 +1,4 @@
 <template>
-  <v-app>
   <v-app :key="$i18n.locale">
     <v-app-bar
       app
