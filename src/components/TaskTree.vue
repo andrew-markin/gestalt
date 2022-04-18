@@ -15,10 +15,10 @@
             <div
               v-if="!!parent"
               class="trunk mt-n3"
-              :class="{ piped: index !== lastTaskIndex }">
+              :class="{ piped: tasks.length - index > 1 }">
               <div
                 class="bridge pt-3"
-                :class="{ last: index === lastTaskIndex }">
+                :class="{ last: tasks.length - index === 1 }">
               </div>
             </div>
             <div class="flex-grow-1 overflow-hidden">
@@ -114,17 +114,7 @@ export default {
     tasks: { type: Array, default: () => [] },
     selectedTask: { type: String }
   },
-  data: () => ({ mdiChevronDown, mdiChevronUp }),
-  computed: {
-    lastTaskIndex () {
-      const tasks = this.tasks
-      let index = tasks.length
-      while (index-- > 0) {
-        if (!tasks[index].deleted) return index
-      }
-      return undefined
-    }
-  }
+  data: () => ({ mdiChevronDown, mdiChevronUp })
 }
 </script>
 
