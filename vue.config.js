@@ -1,4 +1,5 @@
-module.exports = {
+const { defineConfig } = require('@vue/cli-service')
+module.exports = defineConfig({
   transpileDependencies: ['vuetify'],
   productionSourceMap: false,
   pluginOptions: {
@@ -10,4 +11,4 @@ module.exports = {
       enableBridge: false
     }
   }
-}
+})

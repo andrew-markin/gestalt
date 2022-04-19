@@ -10,15 +10,15 @@ const REF_SALT = process.env.VUE_APP_REF_SALT
 const uint8ArrayToWordArray = (source) => {
   const sourceLength = source.length
   const words = []
-  for (var i = 0; i < sourceLength; i++) {
+  for (let i = 0; i < sourceLength; i++) {
     words[i >>> 2] |= source[i] << (24 - (i % 4) * 8)
   }
   return CryptoJS.lib.WordArray.create(words, source.length)
 }
 
 const wordArrayToUint8Array = (wordArray) => {
-  var words = wordArray.words
-  var sigBytes = wordArray.sigBytes
+  const words = wordArray.words
+  const sigBytes = wordArray.sigBytes
   const result = new Uint8Array(sigBytes)
   for (let i = 0; i < sigBytes; i++) {
     result[i] = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff
