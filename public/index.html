@@ -7,12 +7,23 @@
     <link rel="icon" type="image/svg+xml" href="<%= BASE_URL %>favicon.svg">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
     <title>Gestalt</title>
+    <style>
+      html { background: #E5E5E5; }
+      .dark { background: #1E1E1E; }
+    </style>
   </head>
   <body>
     <noscript>
       <strong>Please enable JavaScript to continue.</strong>
     </noscript>
     <div id="app"></div>
+    <script>
+      var dark = localStorage.dark
+      dark = dark === undefined
+        ? matchMedia && matchMedia('(prefers-color-scheme: dark)').matches
+        : dark === 'true'
+      if (dark) document.getElementsByTagName('html')[0].classList.add('dark');
+    </script>
     <!-- built files will be auto injected -->
   </body>
 </html>
