@@ -150,11 +150,13 @@ const store = new Vuex.Store({
       try {
         await dispatch('resetSocket')
         commit('setKey', key)
-        const data = await dispatch('loadLocal', 'data')
         commit('selectTask', undefined)
+        const data = await dispatch('loadLocal', 'data')
         commit('setContext', unpackContext(data, key))
         const version = await dispatch('loadLocal', 'version')
         commit('setVersion', version)
+        const selected = await dispatch('loadLocal', 'selected')
+        commit('selectTask', selected)
         await dispatch('setupSocket')
       } catch (err) {
         console.warn('Unable to load state:', err.message)
@@ -173,6 +175,7 @@ const store = new Vuex.Store({
       if (state.saved) return
       await dispatch('save')
       await dispatch('setVersion', undefined)
+      await dispatch('saveSelectedTask')
     },
     copyLink ({ state }) {
       copyToClipboard(getBoardLink(state.key))
@@ -319,6 +322,16 @@ const store = new Vuex.Store({
       } finally {
         release()
       }
+    },
+    async selectTask ({ commit, dispatch }, uuid) {
+      commit('selectTask', uuid)
+      await dispatch('saveSelectedTask')
+    },
+    async saveSelectedTask ({ state, dispatch }) {
+      await dispatch('saveLocal', {
+        name: 'selected',
+        value: state.selectedTask
+      })
     }
   },
   mutations: {

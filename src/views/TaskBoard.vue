@@ -32,8 +32,8 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['load', 'moveTask', 'reorderTask', 'expandTask']),
-    ...mapMutations(['selectTask', 'demandTask']),
+    ...mapActions(['load', 'moveTask', 'reorderTask', 'expandTask', 'selectTask']),
+    ...mapMutations(['demandTask']),
     loadGestalt () {
       this.load(this.gestaltKey)
     },
