@@ -6,6 +6,8 @@ Application is running here: https://gestalt.work
 
 ## Project setup
 
+### Install dependencies
+
     $ npm install
 
 ### Prepare environment variables
