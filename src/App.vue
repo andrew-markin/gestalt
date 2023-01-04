@@ -88,12 +88,13 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
-import { mdiPlus, mdiMenu } from '@mdi/js'
-import { preferLocale } from './i18n'
+import { mdiMenu, mdiPlus } from '@mdi/js'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+
 import AppMenuList from './components/AppMenuList.vue'
 import PrefsDialog from './components/PrefsDialog.vue'
 import TaskDialog from './components/TaskDialog.vue'
+import { preferLocale } from './i18n'
 
 export default {
   components: {

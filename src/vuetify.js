@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify/lib/framework'
-import { light, dark } from './themes'
+
+import { dark, light } from './themes'
 
 Vue.use(Vuetify)
 

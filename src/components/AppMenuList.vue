@@ -101,14 +101,14 @@
 </template>
 
 <script>
-import { github, linkedin } from '../links'
-import { mapActions } from 'vuex'
-import { toggleDarkTheme } from '../vuetify'
-
 import {
-  mdiLinkVariant, mdiOpenInNew, mdiContentDuplicate, mdiCircleOutline,
-  mdiInvertColors, mdiTranslate, mdiGithub, mdiLinkedin
+  mdiCircleOutline, mdiContentDuplicate, mdiGithub, mdiInvertColors,
+  mdiLinkedin, mdiLinkVariant, mdiOpenInNew, mdiTranslate
 } from '@mdi/js'
+import { mapActions } from 'vuex'
+
+import { github, linkedin } from '../links'
+import { toggleDarkTheme } from '../vuetify'
 
 export default {
   data: () => ({

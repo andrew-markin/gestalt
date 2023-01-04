@@ -95,8 +95,9 @@
 </template>
 
 <script>
-import { Drag, Drop, DropList, DragAwareMixin } from 'vue-easy-dnd'
 import { mdiChevronDown, mdiChevronUp } from '@mdi/js'
+import { Drag, DragAwareMixin, Drop, DropList } from 'vue-easy-dnd'
+
 import TaskStateIcon from './TaskStateIcon.vue'
 
 export default {

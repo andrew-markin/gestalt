@@ -1,7 +1,8 @@
-import { generateKey } from './utils'
-import TaskBoard from './views/TaskBoard.vue'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+
+import { generateKey } from './utils'
+import TaskBoard from './views/TaskBoard.vue'
 
 Vue.use(VueRouter)
 

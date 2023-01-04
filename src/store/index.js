@@ -1,13 +1,14 @@
-import { generateKey, keyToRef, pack, unpack, timestamp, adjustTimestamp } from '../utils'
 import { Mutex } from 'async-mutex'
-import { v4 as uuidv4 } from 'uuid'
 import copyToClipboard from 'copy-to-clipboard'
 import io from 'socket.io-client'
-import Prefs from './prefs'
-import router from '../router'
-import Tasks from './tasks'
+import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
 import Vuex from 'vuex'
+
+import router from '../router'
+import { adjustTimestamp, generateKey, keyToRef, pack, timestamp, unpack } from '../utils'
+import Prefs from './prefs'
+import Tasks from './tasks'
 
 const SYNC_DELAY = 2000
 const SYNC_ENSURE_INTERVAL = 30000

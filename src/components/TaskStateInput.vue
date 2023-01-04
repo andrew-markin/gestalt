@@ -21,7 +21,8 @@
 </template>
 
 <script>
-import { mdiCircleOutline, mdiCircleHalfFull, mdiCircle } from '@mdi/js'
+import { mdiCircle, mdiCircleHalfFull, mdiCircleOutline } from '@mdi/js'
+
 import { TaskStates } from '../consts'
 
 export default {

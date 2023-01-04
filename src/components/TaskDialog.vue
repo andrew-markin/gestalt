@@ -70,7 +70,8 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+
 import TaskStateInput from './TaskStateInput.vue'
 
 export default {

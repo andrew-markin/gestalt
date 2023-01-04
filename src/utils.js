@@ -1,5 +1,5 @@
-import AES from 'crypto-js/aes'
 import baseX from 'base-x'
+import AES from 'crypto-js/aes'
 import CryptoJS from 'crypto-js/core'
 import HmacSHA256 from 'crypto-js/hmac-sha256'
 import pako from 'pako'

@@ -28,8 +28,8 @@
     "vuex": "^3.6.2"
   },
   "devDependencies": {
-    "@mdi/js": "^7.1.96",
     "@babel/eslint-parser": "^7.19.1",
+    "@mdi/js": "^7.1.96",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
@@ -40,6 +40,7 @@
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
+    "eslint-plugin-simple-import-sort": "^8.0.0",
     "eslint-plugin-standard": "^4.1.0",
     "eslint-plugin-vue": "^7.20.0",
     "gh-pages": "^4.0.0",
