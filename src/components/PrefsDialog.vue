@@ -10,7 +10,7 @@
         v-model="valid"
         lazy-validation>
         <v-text-field
-          autofocus
+          outlined autofocus
           :label="$t('TITLE')"
           class="my-5"
           v-model="title"

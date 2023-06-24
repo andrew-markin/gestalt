@@ -13,7 +13,7 @@
         v-model="valid"
         lazy-validation>
         <v-textarea
-          autofocus
+          outlined autofocus
           :label="$t('DESCRIPTION')"
           class="my-5"
           rows="6" no-resize
