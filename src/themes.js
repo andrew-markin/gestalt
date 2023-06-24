@@ -9,6 +9,7 @@ export const light = {
   ...common,
   background: '#E5E5E5',
   foreground: '#FFFFFF',
+  border: '#DADADA',
   hover: '#F6F7FB'
 }
 
@@ -16,5 +17,6 @@ export const dark = {
   ...common,
   background: '#1E1E1E',
   foreground: '#2C2C2C',
+  border: '#444444',
   hover: '#2E2F33'
 }

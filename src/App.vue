@@ -1,9 +1,8 @@
 <template>
   <v-app :key="$i18n.locale">
     <v-app-bar
-      app
-      elevation="2"
-      elevate-on-scroll
+      id="bar"
+      app short flat
       color="foreground">
       <v-container class="d-flex py-0 noselect overflow-x-hidden">
         <v-avatar
@@ -67,7 +66,8 @@
           <span>{{ $t('NEW_SUBTASK_TOOLTIP') }}</span>
         </v-tooltip>
         <v-menu
-          open-on-hover transition="slide-y-transition" offset-y>
+          transition="slide-y-transition" offset-y
+          content-class="rounded-lg" min-width="300">
           <template #activator="{ on, attrs }">
             <v-btn
               depressed class="nominwidth pa-2 ml-2"
@@ -161,6 +161,9 @@ html {
 </style>
 
 <style scoped>
+#bar {
+  border-bottom: 1px solid var(--v-border-base) !important;
+}
 #favicon {
   --favicon-extent: 32px;
   width: var(--favicon-extent);

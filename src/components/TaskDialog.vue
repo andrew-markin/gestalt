@@ -3,7 +3,7 @@
     max-width="650"
     overlay-color="grey darken-3"
     v-model="visible">
-    <v-card class="pa-5">
+    <v-card class="pa-5 rounded-lg">
       <div class="d-flex align-center">
         <span class="text-h5">{{ $t('TASK') }}</span>
         <v-spacer/><task-state-input v-model="state"/>
