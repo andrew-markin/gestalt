@@ -17,54 +17,36 @@
             </object>
           </div>
         </v-avatar>
-        <v-tooltip bottom open-delay="500">
-          <template #activator="{ on, attrs }">
-            <div
-              id="title"
-              class="d-flex align-center text-h5 overflow-x-hidden pr-4"
-              @click="setPrefsDialogShown(true)"
-              v-bind="attrs" v-on="on">
-              <span class="font-weight-medium mr-2">{{ $t('GESTALT') }}:</span>
-              <span
-                class="text-truncate"
-                :class="{ 'muted-1': !title }">
-                {{ title || $t('UNTITLED') }}
-              </span>
-              <v-badge
-                class="ml-2"
-                dot offset-y="-6"
-                :value="!synced">
-              </v-badge>
-            </div>
-          </template>
-          <span>{{ $t('GESTALT_TITLE_TOOLTIP') }}</span>
-        </v-tooltip>
+          <div
+            id="title"
+            class="d-flex align-center text-h5 overflow-x-hidden pr-4"
+            @click="setPrefsDialogShown(true)">
+            <span class="font-weight-medium mr-2">{{ $t('GESTALT') }}:</span>
+            <span
+              class="text-truncate"
+              :class="{ 'muted-1': !title }">
+              {{ title || $t('UNTITLED') }}
+            </span>
+            <v-badge
+              class="ml-2"
+              dot offset-y="-6"
+              :value="!synced">
+            </v-badge>
+          </div>
         <v-spacer></v-spacer>
-        <v-tooltip bottom open-delay="500">
-          <template #activator="{ on, attrs }">
-            <v-btn
-              depressed class="ml-2"
-              @click="demandTask({})"
-              v-bind="attrs" v-on="on">
-              <v-icon left>{{ mdiPlus }}</v-icon>
-              {{ $t('TASK') }}
-            </v-btn>
-          </template>
-          <span>{{ $t('NEW_TASK_TOOLTIP') }}</span>
-        </v-tooltip>
-        <v-tooltip bottom open-delay="500">
-          <template #activator="{ on, attrs }">
-            <v-btn
-              depressed class="ml-2"
-              @click="demandTask({ subtask: true })"
-              :disabled="!selectedTask"
-              v-bind="attrs" v-on="on">
-              <v-icon left>{{ mdiPlus }}</v-icon>
-              {{ $t('SUBTASK') }}
-            </v-btn>
-          </template>
-          <span>{{ $t('NEW_SUBTASK_TOOLTIP') }}</span>
-        </v-tooltip>
+        <v-btn
+          depressed class="ml-2"
+          @click="demandTask({})">
+          <v-icon left>{{ mdiPlus }}</v-icon>
+          {{ $t('TASK') }}
+          </v-btn>
+          <v-btn
+            depressed class="ml-2"
+            @click="demandTask({ subtask: true })"
+            :disabled="!selectedTask">
+            <v-icon left>{{ mdiPlus }}</v-icon>
+            {{ $t('SUBTASK') }}
+          </v-btn>
         <v-menu
           transition="slide-y-transition" offset-y
           content-class="rounded-lg" min-width="300">
