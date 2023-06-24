@@ -89,7 +89,7 @@
 
 <script>
 import { mdiMenu, mdiPlus } from '@mdi/js'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 
 import AppMenuList from './components/AppMenuList.vue'
 import PrefsDialog from './components/PrefsDialog.vue'
@@ -120,12 +120,6 @@ export default {
     }
   },
   methods: {
-    ...mapActions([
-      'copyLink',
-      'newGestalt',
-      'cloneGestalt',
-      'resetAllTasks'
-    ]),
     ...mapMutations([
       'setPrefsDialogShown',
       'demandTask'

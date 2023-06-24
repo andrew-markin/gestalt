@@ -127,214 +127,6 @@ const store = new Vuex.Store({
       return task
     }
   },
-  actions: {
-    async setupSocket ({ state, dispatch }) {
-      if (!socket.connected) return
-      await submit('ref', keyToRef(state.key))
-      dispatch('sync')
-    },
-    async resetSocket () {
-      if (!socket.connected) return
-      await submit('ref', undefined)
-    },
-    saveLocal ({ state }, { name, value, key }) {
-      const itemKey = `gestalt:${keyToRef(key || state.key)}:${name}`
-      if (value !== undefined) localStorage.setItem(itemKey, value)
-      else localStorage.removeItem(itemKey)
-    },
-    loadLocal ({ state }, name) {
-      const itemKey = `gestalt:${keyToRef(state.key)}:${name}`
-      return localStorage.getItem(itemKey) || undefined
-    },
-    async load ({ commit, dispatch }, key) {
-      const release = await syncMutex.acquire()
-      try {
-        await dispatch('resetSocket')
-        commit('setKey', key)
-        commit('selectTask', undefined)
-        const data = await dispatch('loadLocal', 'data')
-        commit('setContext', unpackContext(data, key))
-        const version = await dispatch('loadLocal', 'version')
-        commit('setVersion', version)
-        const selected = await dispatch('loadLocal', 'selected')
-        commit('selectTask', selected)
-        await dispatch('setupSocket')
-      } catch (err) {
-        console.warn('Unable to load state:', err.message)
-      } finally {
-        release()
-      }
-    },
-    async save ({ state, dispatch, commit }) {
-      await dispatch('saveLocal', {
-        name: 'data',
-        value: packContext(state, state.key)
-      })
-      commit('setSaved', true)
-    },
-    async saveIfNeeded ({ state, dispatch }) {
-      if (state.saved) return
-      await dispatch('save')
-      await dispatch('setVersion', undefined)
-      await dispatch('saveSelectedTask')
-    },
-    copyLink ({ state }) {
-      copyToClipboard(getBoardLink(state.key))
-    },
-    newGestalt () {
-      window.open(getBoardLink(generateKey()))
-    },
-    async cloneGestalt ({ state, dispatch }) {
-      const key = generateKey()
-      await dispatch('saveLocal', {
-        key,
-        name: 'data',
-        value: packContext(state, key)
-      })
-      window.open(getBoardLink(key))
-    },
-    async resetAllTasks ({ commit, dispatch }) {
-      commit('resetAllTasks')
-      await dispatch('saveIfNeeded')
-    },
-    async setVersion ({ state, commit, dispatch }, value) {
-      if (!value) syncLater()
-      if (state.version === value) return
-      commit('setVersion', value)
-      await dispatch('saveLocal', { name: 'version', value })
-    },
-    async syncIfNeeded ({ state, dispatch }) {
-      if (!socket.connected || state.version || syncTimeout) return
-      await dispatch('sync')
-    },
-    async sync ({ state, commit, dispatch }) {
-      clearTimeout(syncTimeout)
-      syncTimeout = undefined
-      if (!socket.connected) return
-      const release = await syncMutex.acquire()
-      try {
-        let attempts = SYNC_ATTEMPTS_COUNT
-        let nextContext, nextVersion
-        let res = await submit('get', { known: state.version })
-        while (attempts-- > 0) { // Consensus loop
-          let mergedContext
-          if (res.data) {
-            res.context = unpackContext(res.data, state.key)
-            if (state.version) {
-              // There are no local changes...
-              if (state.version !== res.version) {
-                // There are remote changes...
-                nextContext = res.context
-                nextVersion = res.version
-              }
-              break
-            }
-            mergedContext = mergeContexts(state, res.context)
-          } else if ((res.version === state.version) &&
-                     (res.version || ((state.prefs.length === 0) &&
-                                      (state.tasks.length === 0)))) break
-
-          const data = packContext(mergedContext || state, state.key, true)
-          res = await submit('set', { data, version: res.version })
-          if (res.success) {
-            nextContext = mergedContext || undefined
-            nextVersion = res.version
-            break
-          }
-          await sleep(200) // Wait for a while before next attempt
-        }
-        if (nextContext) {
-          Tasks.transferExpanded(state.tasks, nextContext.tasks)
-          commit('setContext', nextContext)
-          await dispatch('save')
-        }
-        if (nextVersion) {
-          await dispatch('setVersion', nextVersion)
-        }
-      } catch (err) {
-        console.warn('Unable to sync:', err.message)
-      } finally {
-        release()
-      }
-    },
-    async setPref ({ commit, dispatch }, { name, value }) {
-      const release = await syncMutex.acquire()
-      try {
-        commit('setPref', { name, value })
-        await dispatch('saveIfNeeded')
-      } catch (err) {
-        console.warn('Unable to set preference:', err.message)
-      } finally {
-        release()
-      }
-    },
-    async upsertTask ({ commit, dispatch }, { uuid, subtask, data }) {
-      const release = await syncMutex.acquire()
-      try {
-        commit('upsertTask', { uuid, subtask, data })
-        await dispatch('saveIfNeeded')
-      } catch (err) {
-        console.warn('Unable to upsert task:', err.message)
-      } finally {
-        release()
-      }
-    },
-    async moveTask ({ commit, dispatch }, { uuid, target, index }) {
-      const release = await syncMutex.acquire()
-      try {
-        commit('moveTask', { uuid, target, index })
-        await dispatch('saveIfNeeded')
-      } catch (err) {
-        console.warn('Unable to move task:', err.message)
-      } finally {
-        release()
-      }
-    },
-    async reorderTask ({ commit, dispatch }, { parent, from, to }) {
-      const release = await syncMutex.acquire()
-      try {
-        commit('reorderTask', { parent, from, to })
-        await dispatch('saveIfNeeded')
-      } catch (err) {
-        console.warn('Unable to reorder task:', err.message)
-      } finally {
-        release()
-      }
-    },
-    async deleteTask ({ commit, dispatch }, uuid) {
-      const release = await syncMutex.acquire()
-      try {
-        commit('deleteTask', uuid)
-        await dispatch('saveIfNeeded')
-      } catch (err) {
-        console.warn('Unable to delete task:', err.message)
-      } finally {
-        release()
-      }
-    },
-    async expandTask ({ commit, dispatch }, uuid) {
-      if (!uuid) return
-      const release = await syncMutex.acquire()
-      try {
-        commit('expandTask', uuid)
-        await dispatch('save')
-      } catch (err) {
-        console.warn('Unable to expand task:', err.message)
-      } finally {
-        release()
-      }
-    },
-    async selectTask ({ commit, dispatch }, uuid) {
-      commit('selectTask', uuid)
-      await dispatch('saveSelectedTask')
-    },
-    async saveSelectedTask ({ state, dispatch }) {
-      await dispatch('saveLocal', {
-        name: 'selected',
-        value: state.selectedTask
-      })
-    }
-  },
   mutations: {
     setContext (state, { prefs, tasks }) {
       state.prefs = prefs
@@ -461,6 +253,212 @@ const store = new Vuex.Store({
     },
     demandTask (state, value) {
       state.demandedTask = value
+    }
+  },
+  actions: {
+    async setupSocket ({ state, dispatch }) {
+      if (!socket.connected) return
+      await submit('ref', keyToRef(state.key))
+      dispatch('sync')
+    },
+    async resetSocket () {
+      if (!socket.connected) return
+      await submit('ref', undefined)
+    },
+    saveLocal ({ state }, { name, value, key }) {
+      const itemKey = `gestalt:${keyToRef(key || state.key)}:${name}`
+      if (value !== undefined) localStorage.setItem(itemKey, value)
+      else localStorage.removeItem(itemKey)
+    },
+    loadLocal ({ state }, name) {
+      const itemKey = `gestalt:${keyToRef(state.key)}:${name}`
+      return localStorage.getItem(itemKey) || undefined
+    },
+    async load ({ commit, dispatch }, key) {
+      const release = await syncMutex.acquire()
+      try {
+        await dispatch('resetSocket')
+        commit('setKey', key)
+        commit('selectTask', undefined)
+        const data = await dispatch('loadLocal', 'data')
+        commit('setContext', unpackContext(data, key))
+        const version = await dispatch('loadLocal', 'version')
+        commit('setVersion', version)
+        const selected = await dispatch('loadLocal', 'selected')
+        commit('selectTask', selected)
+        await dispatch('setupSocket')
+      } catch (err) {
+        console.warn('Unable to load state:', err.message)
+      } finally {
+        release()
+      }
+    },
+    async save ({ state, dispatch, commit }) {
+      await dispatch('saveLocal', {
+        name: 'data',
+        value: packContext(state, state.key)
+      })
+      commit('setSaved', true)
+    },
+    async saveIfNeeded ({ state, dispatch }) {
+      if (state.saved) return
+      await dispatch('save')
+      await dispatch('setVersion', undefined)
+      await dispatch('saveSelectedTask')
+    },
+    copyLink ({ state }) {
+      copyToClipboard(getBoardLink(state.key))
+    },
+    newGestalt () {
+      window.open(getBoardLink(generateKey()))
+    },
+    async cloneGestalt ({ state, dispatch }) {
+      const key = generateKey()
+      await dispatch('saveLocal', {
+        key,
+        name: 'data',
+        value: packContext(state, key)
+      })
+      window.open(getBoardLink(key))
+    },
+    async resetAllTasks ({ commit, dispatch }) {
+      commit('resetAllTasks')
+      await dispatch('saveIfNeeded')
+    },
+    async setVersion ({ state, commit, dispatch }, value) {
+      if (!value) syncLater()
+      if (state.version === value) return
+      commit('setVersion', value)
+      await dispatch('saveLocal', { name: 'version', value })
+    },
+    async syncIfNeeded ({ state, dispatch }) {
+      if (!socket.connected || state.version || syncTimeout) return
+      await dispatch('sync')
+    },
+    async sync ({ state, getters, commit, dispatch }) {
+      clearTimeout(syncTimeout)
+      syncTimeout = undefined
+      if (!socket.connected) return
+      const release = await syncMutex.acquire()
+      try {
+        let attempts = SYNC_ATTEMPTS_COUNT
+        let nextContext, nextVersion
+        let res = await submit('get', { known: state.version })
+        while (attempts-- > 0) { // Consensus loop
+          let mergedContext
+          if (res.data) {
+            res.context = unpackContext(res.data, state.key)
+            if (state.version) {
+              // There are no local changes...
+              if (state.version !== res.version) {
+                // There are remote changes...
+                nextContext = res.context
+                nextVersion = res.version
+              }
+              break
+            }
+            mergedContext = mergeContexts(state, res.context)
+          } else if ((res.version === state.version) && getters.synced) break
+
+          const data = packContext(mergedContext || state, state.key, true)
+          res = await submit('set', { data, version: res.version })
+          if (res.success) {
+            nextContext = mergedContext || undefined
+            nextVersion = res.version
+            break
+          }
+          await sleep(200) // Wait for a while before next attempt
+        }
+        if (nextContext) {
+          Tasks.transferExpanded(state.tasks, nextContext.tasks)
+          commit('setContext', nextContext)
+          await dispatch('save')
+        }
+        if (nextVersion) {
+          await dispatch('setVersion', nextVersion)
+        }
+      } catch (err) {
+        console.warn('Unable to sync:', err.message)
+      } finally {
+        release()
+      }
+    },
+    async setPref ({ commit, dispatch }, { name, value }) {
+      const release = await syncMutex.acquire()
+      try {
+        commit('setPref', { name, value })
+        await dispatch('saveIfNeeded')
+      } catch (err) {
+        console.warn('Unable to set preference:', err.message)
+      } finally {
+        release()
+      }
+    },
+    async upsertTask ({ commit, dispatch }, { uuid, subtask, data }) {
+      const release = await syncMutex.acquire()
+      try {
+        commit('upsertTask', { uuid, subtask, data })
+        await dispatch('saveIfNeeded')
+      } catch (err) {
+        console.warn('Unable to upsert task:', err.message)
+      } finally {
+        release()
+      }
+    },
+    async moveTask ({ commit, dispatch }, { uuid, target, index }) {
+      const release = await syncMutex.acquire()
+      try {
+        commit('moveTask', { uuid, target, index })
+        await dispatch('saveIfNeeded')
+      } catch (err) {
+        console.warn('Unable to move task:', err.message)
+      } finally {
+        release()
+      }
+    },
+    async reorderTask ({ commit, dispatch }, { parent, from, to }) {
+      const release = await syncMutex.acquire()
+      try {
+        commit('reorderTask', { parent, from, to })
+        await dispatch('saveIfNeeded')
+      } catch (err) {
+        console.warn('Unable to reorder task:', err.message)
+      } finally {
+        release()
+      }
+    },
+    async deleteTask ({ commit, dispatch }, uuid) {
+      const release = await syncMutex.acquire()
+      try {
+        commit('deleteTask', uuid)
+        await dispatch('saveIfNeeded')
+      } catch (err) {
+        console.warn('Unable to delete task:', err.message)
+      } finally {
+        release()
+      }
+    },
+    async expandTask ({ commit, dispatch }, uuid) {
+      if (!uuid) return
+      const release = await syncMutex.acquire()
+      try {
+        commit('expandTask', uuid)
+        await dispatch('save')
+      } catch (err) {
+        console.warn('Unable to expand task:', err.message)
+      } finally {
+        release()
+      }
+    },
+    async selectTask ({ commit, dispatch }, uuid) {
+      commit('selectTask', uuid)
+      await dispatch('saveSelectedTask')
+    },
+    async saveSelectedTask ({ state, dispatch }) {
+      await dispatch('saveLocal', {
+        name: 'selected',
+        value: state.selectedTask
+      })
     }
   }
 })
