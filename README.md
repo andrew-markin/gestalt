@@ -1,8 +1,8 @@
 # Gestalt
 
-Gestalt is a simple open-source TODO application that supports subtasks. Gestalts can be easily shared by their URL addresses and therefore can be used for collaboration of few people. With Gestalt you can make sure that everything goes as it should and nothing is missed.
+Gestalt is a straightforward open-source task management application that supports subtasks. It enables easy collaboration among multiple users as Gestalts can be shared using unique URL addresses. With Gestalt, you can ensure that all tasks are completed efficiently and nothing is overlooked.
 
-Application is running here: https://gestalt.work
+Access the application at https://gestalt.work
 
 ## Project setup
 
