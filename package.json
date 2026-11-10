@@ -21,6 +21,7 @@
     "pattern": "node scripts/generate-pattern.mjs"
   },
   "dependencies": {
+    "@fontsource/roboto": "^5.3.0",
     "async-mutex": "^0.5.0",
     "base-x": "^4.0.0",
     "copy-to-clipboard": "^3.3.3",
