@@ -199,7 +199,7 @@ const store = new Vuex.Store({
     },
     moveTask (state, { uuid, target, index }) {
       if (uuid === target) return
-      const { task, ...source } = Tasks.findOne(state.tasks, uuid)
+      const { task, ...source } = Tasks.findOne(state.tasks, uuid) || {}
       if (!task || Tasks.findOne(task.subtasks || [], target)) return
       let targetTasks
       if (target) {

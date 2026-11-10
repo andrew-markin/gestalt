@@ -13,9 +13,10 @@ export default new VueRouter({
     component: TaskBoard
   }, {
     path: '*',
-    redirect: {
+    // Generate a fresh key on every redirect (not once at module load)
+    redirect: () => ({
       name: 'board',
       params: { key: generateKey() }
-    }
+    })
   }]
 })

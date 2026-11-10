@@ -54,7 +54,7 @@ const findOne = (root, uuid) => {
 
 const findSubtasks = (root, uuid) => {
   if (!uuid) return root
-  const { task } = findOne(root, uuid)
+  const { task } = findOne(root, uuid) || {}
   if (task) return task.subtasks || []
 }
 
