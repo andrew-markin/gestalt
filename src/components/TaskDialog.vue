@@ -1,7 +1,7 @@
 <template>
   <v-dialog
     max-width="650"
-    overlay-color="grey darken-3"
+    overlay-color="#424242"
     v-model="visible">
     <v-card class="pa-5 rounded-lg">
       <div class="d-flex align-center">
