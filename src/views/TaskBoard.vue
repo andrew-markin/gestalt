@@ -1,5 +1,6 @@
 <template>
   <div id="board">
+    <background-pattern/>
     <div id="outside" @click="select()"/>
     <v-container class="pt-0">
       <task-tree
@@ -19,10 +20,11 @@
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex'
 
+import BackgroundPattern from '../components/BackgroundPattern.vue'
 import TaskTree from '../components/TaskTree.vue'
 
 export default {
-  components: { TaskTree },
+  components: { BackgroundPattern, TaskTree },
   computed: {
     ...mapState(['tasks', 'selectedTask']),
     gestaltKey () {
@@ -66,9 +68,11 @@ export default {
 
 <style scoped>
 /* Covers the whole scrollable content (at least the visible area), so that
-   clicks on empty space anywhere deselect the task */
+   the background pattern fills it and clicks on empty space anywhere deselect
+   the task */
 #board {
   position: relative;
+  isolation: isolate; /* Keep the background pattern behind the tasks */
   min-height: 100%;
   display: flow-root; /* Keep the tree's top margin inside */
 }

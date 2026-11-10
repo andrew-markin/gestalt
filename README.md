@@ -66,6 +66,11 @@ To get a token, run `npm run token gestalt` in a Blobs checkout with the same `T
 | `npm run lint`             | Lint and auto-fix the sources                    |
 | `npm run audit`            | Audit runtime dependencies for vulnerabilities   |
 | `npm run vue-i18n-extract` | Report missing and unused translation keys       |
+| `npm run pattern`          | Regenerate the background pattern                |
+
+### Background pattern
+
+The background pattern is generated from [Material Design Icons](https://pictogrammers.com/library/mdi/) by a [script](scripts/generate-pattern.mjs) with a fixed seed, so commit the regenerated `src/assets/pattern.svg` along with the changes of the script.
 
 ### Translations
 
