@@ -118,12 +118,14 @@ export default {
 
 <style>
 html {
-  overflow-y: auto;
-  /* Always reserve space for the scrollbar, so the layout doesn't jump when
-     it appears or disappears (e.g. on expanding tasks or opening dialogs) */
+  /* Always show the scrollbar (with an empty track when there is nothing to
+     scroll), so the layout doesn't jump on expanding tasks. The gutter is kept
+     stable for the cases when the scrollbar gets hidden (e.g. by dialogs). */
+  overflow-y: scroll;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
-  scrollbar-color: var(--v-pipe-base) transparent;
+  /* The track matches the app bar, so there is no gap next to it */
+  scrollbar-color: var(--v-pipe-base) var(--v-foreground-base);
 }
 /* Fallback for browsers without scrollbar-color support (Safari) */
 @supports not (scrollbar-color: auto) {
@@ -132,7 +134,7 @@ html {
     height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background: var(--v-foreground-base);
   }
   ::-webkit-scrollbar-thumb {
     background: var(--v-pipe-base);
