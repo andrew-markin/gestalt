@@ -1,5 +1,8 @@
 # Gestalt
 
+[![CI](https://github.com/andrew-markin/gestalt/actions/workflows/ci.yml/badge.svg)](https://github.com/andrew-markin/gestalt/actions/workflows/ci.yml)
+[![License: GPL v3](https://img.shields.io/github/license/andrew-markin/gestalt)](LICENSE)
+
 **Gestalt** is a simple open-source task manager with nested subtasks. Every task list (a *gestalt*) lives at its own unique URL, so sharing it is as easy as sending a link. All data is encrypted in the browser before it leaves your device.
 
 **Try it:** https://gestalt.work
