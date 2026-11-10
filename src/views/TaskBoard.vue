@@ -1,17 +1,19 @@
 <template>
-  <v-container class="pt-0">
+  <div id="board">
     <div id="outside" @click="select()"/>
-    <task-tree
-      class="noselect"
-      :tasks="tasks"
-      :selected-task="selectedTask"
-      @open="open"
-      @move="move"
-      @reorder="reorder"
-      @expand="expand"
-      @select="select">
-    </task-tree>
-  </v-container>
+    <v-container class="pt-0">
+      <task-tree
+        class="noselect"
+        :tasks="tasks"
+        :selected-task="selectedTask"
+        @open="open"
+        @move="move"
+        @reorder="reorder"
+        @expand="expand"
+        @select="select">
+      </task-tree>
+    </v-container>
+  </div>
 </template>
 
 <script>
@@ -63,6 +65,13 @@ export default {
 </script>
 
 <style scoped>
+/* Covers the whole scrollable content (at least the visible area), so that
+   clicks on empty space anywhere deselect the task */
+#board {
+  position: relative;
+  min-height: 100%;
+  display: flow-root; /* Keep the tree's top margin inside */
+}
 #outside {
   position: absolute;
   top: 0;

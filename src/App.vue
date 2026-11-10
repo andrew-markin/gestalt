@@ -117,30 +117,50 @@ export default {
 </script>
 
 <style>
+/* Only the task area below the app bar scrolls, not the whole page */
 html {
-  /* Always show the scrollbar (with an empty track when there is nothing to
-     scroll), so the layout doesn't jump on expanding tasks. The gutter is kept
-     stable for the cases when the scrollbar gets hidden (e.g. by dialogs). */
-  overflow-y: scroll;
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  /* The track matches the app bar, so there is no gap next to it */
-  scrollbar-color: var(--v-pipe-base) var(--v-foreground-base);
+  overflow: hidden;
 }
-/* Fallback for browsers without scrollbar-color support (Safari) */
-@supports not (scrollbar-color: auto) {
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  ::-webkit-scrollbar-track {
-    background: var(--v-foreground-base);
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--v-pipe-base);
-    background-clip: padding-box;
-    border: 2px solid transparent;
-    border-radius: 5px;
+.v-main {
+  height: 100vh;
+  height: 100dvh;
+}
+.v-main__wrap {
+  overflow-y: auto;
+  /* Reserve space for the scrollbar, so the layout doesn't jump when it
+     appears, on both sides to keep the tasks aligned with the app bar */
+  scrollbar-gutter: stable both-edges;
+}
+/* Thin scrollbars without arrow buttons, colored like the tree lines.
+   Chromium and Safari are styled with ::-webkit-scrollbar, which gives full
+   control (Chromium ignores it once scrollbar-width or scrollbar-color is set),
+   and Firefox, which doesn't support it, with the standard properties. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-button {
+  display: none;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--v-pipe-base);
+  background-clip: padding-box;
+  /* The transparent border makes the visible thumb 4px wide */
+  border: 3px solid transparent;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  border-width: 2px;
+}
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--v-pipe-base) transparent;
   }
 }
 .noselect {
