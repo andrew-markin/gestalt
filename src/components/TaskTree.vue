@@ -51,13 +51,23 @@
                   @drop="$emit('move', $event.data, task.uuid)">
                 </drop>
               </v-sheet>
-              <task-tree
-                v-if="(task.subtasks.length > 0) && task.expanded"
-                :parent="task.uuid"
-                :tasks="task.subtasks"
-                :selected-task="selectedTask"
-                v-on="$listeners">
-              </task-tree>
+              <transition
+                :css="false"
+                @enter="slideIn"
+                @leave="slideOut"
+                @after-enter="resetSlide"
+                @after-leave="resetSlide">
+                <div v-if="(task.subtasks.length > 0) && task.expanded">
+                  <div>
+                    <task-tree
+                      :parent="task.uuid"
+                      :tasks="task.subtasks"
+                      :selected-task="selectedTask"
+                      v-on="$listeners">
+                    </task-tree>
+                  </div>
+                </div>
+              </transition>
             </div>
           </div>
         </template>
@@ -93,6 +103,72 @@ import { Drag, DragAwareMixin, Drop, DropList } from 'vue-easy-dnd'
 
 import TaskStateIcon from './TaskStateIcon.vue'
 
+// Subtasks slide out of their parent task on expanding and back on collapsing:
+// the wrapper height and the subtasks offset change together, so the subtasks
+// stay attached to the bottom edge of the growing or shrinking wrapper
+const SLIDE_IN = { duration: 220, bezier: [0.05, 0.7, 0.1, 1] } // Decelerating
+const SLIDE_OUT = { duration: 180, bezier: [0.3, 0, 0.8, 0.15] } // Accelerating
+// The clip region reaches the gap above, so the tree lines in it slide too
+const SLIDE_CLIP = 'inset(-12px 0 0 0)'
+
+const reducedMotion = window.matchMedia &&
+  window.matchMedia('(prefers-reduced-motion: reduce)')
+
+// The output of a cubic Bézier timing function for the given input
+const ease = ([x1, y1, x2, y2], x) => {
+  const at = (t, p1, p2) => 3 * (1 - t) * (1 - t) * t * p1 + 3 * (1 - t) * t * t * p2 + t * t * t
+  let low = 0
+  let high = 1
+  for (let i = 0; i < 20; i++) {
+    const t = (low + high) / 2
+    if (at(t, x1, x2) < x) low = t
+    else high = t
+  }
+  return at((low + high) / 2, y1, y2)
+}
+
+// The element is the wrapper changing its height, its only child is the inner
+// wrapper moving the subtasks (not the tree itself, which resets its styles).
+// The slides are tracked on the parent, as an expanding one replaces the
+// wrapper being collapsed with a new one
+const slide = (el, from, to, { duration, bezier }, done) => {
+  if (reducedMotion && reducedMotion.matches) return done()
+  const tree = el.firstElementChild
+  const height = tree.offsetHeight
+  const parent = el.parentNode
+  // Continue from the current state when an opposite slide is interrupted
+  let current = from
+  const last = parent._slide
+  if (last) {
+    const progress = (performance.now() - last.start) / last.duration
+    if (progress < 1) current = last.from + (last.to - last.from) * ease(last.bezier, progress)
+  }
+  if (!height || (Math.abs(to - current) < 0.01)) return done()
+  duration *= Math.abs(to - current)
+  const record = parent._slide = { start: performance.now(), duration, from: current, to, bezier }
+  // Transitions start with the next frame, so its time is more precise
+  requestAnimationFrame((time) => { record.start = time })
+  const timing = `${duration}ms cubic-bezier(${bezier.join(', ')})`
+  // Jump to the start state without transitions, then transition to the end one
+  el.style.transition = tree.style.transition = 'none'
+  el.style.clipPath = SLIDE_CLIP
+  el.style.height = `${current * height}px`
+  tree.style.transform = `translateY(${(current - 1) * height}px)`
+  el.offsetHeight // eslint-disable-line no-unused-expressions -- Apply the start state
+  el.style.transition = `height ${timing}`
+  tree.style.transition = `transform ${timing}`
+  el.style.height = `${to * height}px`
+  tree.style.transform = `translateY(${(to - 1) * height}px)`
+  const finish = (event) => {
+    if (event && event.target !== el) return
+    el.removeEventListener('transitionend', finish)
+    clearTimeout(timeout)
+    done()
+  }
+  el.addEventListener('transitionend', finish)
+  const timeout = setTimeout(finish, duration + 50) // In case no transition runs
+}
+
 export default {
   name: 'task-tree',
   mixins: [DragAwareMixin],
@@ -108,7 +184,20 @@ export default {
     tasks: { type: Array, default: () => [] },
     selectedTask: { type: String }
   },
-  data: () => ({ mdiChevronDown, mdiChevronUp })
+  data: () => ({ mdiChevronDown, mdiChevronUp }),
+  methods: {
+    slideIn (el, done) {
+      slide(el, 0, 1, SLIDE_IN, done)
+    },
+    slideOut (el, done) {
+      slide(el, 1, 0, SLIDE_OUT, done)
+    },
+    resetSlide (el) {
+      el.style.height = el.style.transition = el.style.clipPath = ''
+      const tree = el.firstElementChild
+      if (tree) tree.style.transform = tree.style.transition = ''
+    }
+  }
 }
 </script>
 
