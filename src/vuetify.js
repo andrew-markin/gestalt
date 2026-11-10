@@ -26,7 +26,11 @@ const darkThemeIsPreferred = () => {
 }
 
 const updateDarkThemeState = () => {
-  vuetify.framework.theme.dark = darkThemeIsPreferred()
+  const dark = darkThemeIsPreferred()
+  vuetify.framework.theme.dark = dark
+  // Keep the root background (set up in index.html) in sync with the theme,
+  // as it shows through the reserved scrollbar gutter
+  document.documentElement.classList.toggle('dark', dark)
 }
 
 export const toggleDarkTheme = () => {

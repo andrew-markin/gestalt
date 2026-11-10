@@ -119,6 +119,27 @@ export default {
 <style>
 html {
   overflow-y: auto;
+  /* Always reserve space for the scrollbar, so the layout doesn't jump when
+     it appears or disappears (e.g. on expanding tasks or opening dialogs) */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--v-pipe-base) transparent;
+}
+/* Fallback for browsers without scrollbar-color support (Safari) */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--v-pipe-base);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 5px;
+  }
 }
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
