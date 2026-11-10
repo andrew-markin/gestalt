@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # The app is built on Vue 2, Vuetify 2 and Vue CLI, which can't take major
+  # updates of their ecosystem without a rewrite, so only minor and patch
+  # updates are proposed, grouped into a single pull request
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-major]
+    groups:
+      dependencies:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']
