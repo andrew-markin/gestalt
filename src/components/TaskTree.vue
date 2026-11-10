@@ -124,14 +124,15 @@ export default {
 .trunk.piped {
   border-left: var(--pipe-border);
 }
+/* The bridge fills the trunk's content box: it starts right after the trunk
+   border (or draws its own on the last item) and ends at the task. A negative
+   margin compensating the border breaks at fractional scaling, as browsers
+   round border widths to device pixels but not margins. */
 .bridge {
-  width: 1rem;
   padding-bottom: 1.5rem;
-  margin-left: -2px;
   border-bottom: var(--pipe-border);
 }
 .bridge.last {
-  margin-left: 0;
   border-left: var(--pipe-border);
   border-bottom-left-radius: 4px;
 }
