@@ -66,11 +66,14 @@ To get a token, run `npm run token gestalt` in a Blobs checkout with the same `T
 | `npm run lint`             | Lint and auto-fix the sources                    |
 | `npm run audit`            | Audit runtime dependencies for vulnerabilities   |
 | `npm run vue-i18n-extract` | Report missing and unused translation keys       |
-| `npm run deploy`           | Build and publish `dist/` to GitHub Pages        |
 
 ### Translations
 
 Locale files live in [`src/locales`](./src/locales). To add a language, copy `en.json` to `<locale>.json`, translate the values and set `_LOCALE_TITLE` to the language's native name. It will show up in the menu automatically.
+
+## Deployment
+
+Every push and pull request is linted and built by the [CI workflow](.github/workflows/ci.yml), and pushes to `main` are deployed to GitHub Pages. The build takes the `VUE_APP_*` values from the repository secrets with the same names.
 
 ## License
 

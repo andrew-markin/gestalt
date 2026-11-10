@@ -17,10 +17,7 @@
     "start": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "audit": "npm audit --omit=dev",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
-    "postdeploy": "rm -r dist"
+    "audit": "npm audit --omit=dev"
   },
   "dependencies": {
     "async-mutex": "^0.4.0",
@@ -54,7 +51,6 @@
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "eslint-plugin-standard": "^4.1.0",
     "eslint-plugin-vue": "^7.20.0",
-    "gh-pages": "^5.0.0",
     "sass": "^1.63.6",
     "sass-loader": "^12.6.0",
     "vue-cli-plugin-i18n": "^2.3.2",
