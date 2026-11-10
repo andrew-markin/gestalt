@@ -1,7 +1,17 @@
 {
   "name": "gestalt",
-  "homepage": "https://gestalt.work",
   "version": "0.1.2",
+  "private": true,
+  "description": "Simple open-source task manager with nested subtasks, end-to-end encryption and sharing by link",
+  "homepage": "https://gestalt.work",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrew-markin/gestalt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/andrew-markin/gestalt/issues"
+  },
+  "license": "GPL-3.0-only",
   "scripts": {
     "vue-i18n-extract": "vue-i18n-extract report --vueFiles './src/**/*.?(js|vue)' --languageFiles './src/locales/*.?(json|yml|yaml|js)'",
     "start": "vue-cli-service serve",
