@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="description" content="Simple open-source task manager with nested subtasks, end-to-end encryption and sharing by link">
     <link rel="icon" type="image/svg+xml" href="<%= BASE_URL %>favicon.svg">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
     <title>Gestalt</title>
@@ -18,11 +18,13 @@
     </noscript>
     <div id="app"></div>
     <script>
-      var dark = localStorage.dark
-      dark = dark === undefined
-        ? matchMedia && matchMedia('(prefers-color-scheme: dark)').matches
-        : dark === 'true'
-      if (dark) document.getElementsByTagName('html')[0].classList.add('dark');
+      try {
+        var dark = localStorage.getItem('dark')
+        dark = dark === null
+          ? !!window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches
+          : dark === 'true'
+        if (dark) document.documentElement.classList.add('dark')
+      } catch (e) {}
     </script>
     <!-- built files will be auto injected -->
   </body>

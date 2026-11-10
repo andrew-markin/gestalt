@@ -39,12 +39,12 @@
     </v-list-item-group>
     <v-divider></v-divider>
     <v-list-item
-      :href="github" target="_blank">
+      :href="github" target="_blank" rel="noopener noreferrer">
       <v-icon left>{{ mdiGithub }}</v-icon>
       {{ $t('GITHUB_REPOSITORY') }}
     </v-list-item>
     <v-list-item
-      :href="linkedin" target="_blank">
+      :href="linkedin" target="_blank" rel="noopener noreferrer">
       <v-icon left>{{ mdiLinkedin }}</v-icon>
       {{ $t('LINKEDIN_PROFILE') }}
     </v-list-item>
